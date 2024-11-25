@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "transcriptlab"
+version = "0.1.0"
+description = "Project designed to automate phonetic and phonematic transcription of Ukrainian text."
+authors = ["ArseniiBuhaiev <bugaev3202@ukr.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+customtkinter = "^5.2.2"
+pyperclip = "^1.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
