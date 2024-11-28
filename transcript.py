@@ -33,14 +33,19 @@ reduction_map = {
 
 # Словник відображення результатів асиміляції за дзвінкістю
 voice_assimilation_map = {
-    "ц": "д͡з",
-    "к": "ґ",
-    "ш": "ж",
-    "х": "г",
-    "п": "б",
-    "ч": "д͡ж",
-    "с": "з",
-    "т": "д"
+  "ц": "д͡з",
+  "к": "ґ",
+  "ш": "ж",
+  "х": "г",
+  "п": "б",
+  "ч": "д͡ж",
+  "с": "з",
+  "т": "д"
+}
+
+WOP_assimilation_map = {
+  "д": "д͡з",
+  "т": "ц"
 }
 
 # Множина, що містить голосні
@@ -159,10 +164,22 @@ def sound_lengthening(word: str) -> str:
     next_symb = match.group(2)
     result = f"{target[:len(target)//2]}{next_symb}:"
     return result
+  
+  def replace_contraction(match):
+    target = match.group(1)
+    next_symb = match.group(2)
 
-  result = re.sub(r"(бб|пп|вв|мм|фф|ґґ|кк|хх|шш|чч|жж|гг|дд|тт|зз|сс|цц|лл|нн|рр|д͡жд͡ж|д͡зд͡з)([ߴ´°]*)", replace, word)
+    if next_symb == 'а':
+      result = target + next_symb
+    else:
+      result = 'ц´' + next_symb
 
-  return result
+    return result
+
+  lengthening = re.sub(r"(б[ߴ´°]?б|п[ߴ´°]?п|в[ߴ´°]?в|м[ߴ´°]?м|ф[ߴ´°]?ф|ґ[ߴ´°]?ґ|к[ߴ´°]?к|х[ߴ´°]?х|ш[ߴ´°]?ш|ч[ߴ´°]?ч|[^д͡]ж[ߴ´°]?ж|г[ߴ´°]?г|д[ߴ´°]?д|т[ߴ´°]?т|[^д͡]з[ߴ´°]?з|с[ߴ´°]?с|ц[ߴ´°]?ц|л[ߴ´°]?л|н[ߴ´°]?н|р[ߴ´°]?р|д͡ж[ߴ´°]?д͡ж|д͡з[ߴ´°]?д͡з)([ߴ´°]*)", replace, word)
+  contraction = re.sub(r"(ц´:)(.)", replace_contraction, lengthening)
+
+  return contraction
 
 # Функція додавання знака і-подібної артикуляції
 def i_type_articulation(word: str) -> str:
@@ -178,7 +195,7 @@ def i_type_articulation(word: str) -> str:
     result = f"{prev_symb}·{target}"
     return result
 
-  regressive = re.sub(r"([аоуеãõỹẽ])(!?)(j|\w´)", replace_regressive, word)
+  regressive = re.sub(r"([аоуеãõỹẽ])(!?)(j|\w´|д͡з´)", replace_regressive, word)
   progressive = re.sub(r"([j´][:°]*)([аоуеãõỹẽ])", replace_progressive, regressive)
 
   return progressive
@@ -223,6 +240,28 @@ def voice_assimilation(word: str) -> str:
 
   return re.sub(r"([цкшхфпчст])([´ߴ]*)([гзджбґ]|д͡з|д͡ж)", replace_match, word)
 
+def WOP_assimilation(word: str) -> str:
+  def replace_regressive(match):
+    target = match.group(1)
+    misc = match.group(2)
+    assimilator = match.group(3)
+    result = WOP_assimilation_map[target] + misc + assimilator
+    
+    return result
+  
+  def replace_progressive(match):
+    assimilator = match.group(1)
+    misc = match.group(2)
+
+    result = assimilator + misc + "ц"
+    
+    return result
+
+  regressive = re.sub(r"([дт])(´?)([зсц]|д͡з)", replace_regressive, word)
+  progressive = re.sub(r"(ц)(´?)(с)", replace_progressive, regressive)
+
+  return progressive
+
 def softness_assimilation(word: str) -> str:
   def replace_match(match):
     target = match.group(1)
@@ -258,8 +297,9 @@ def main_phonetic(word: str) -> str:
     transcription = palatalisation(transcription)
     transcription = labialisation(transcription)
     transcription = voice_assimilation(transcription)
-    transcription = sound_lengthening(transcription)
+    transcription = WOP_assimilation(transcription)
     transcription = softness_assimilation(transcription)
+    transcription = sound_lengthening(transcription)
     transcription = i_type_articulation(transcription)
     transcription = stress(transcription)
     transcription = o_assimilation(transcription)

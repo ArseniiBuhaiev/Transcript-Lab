@@ -1,8 +1,8 @@
 from tkinter import *
 from customtkinter import *
 import pyperclip
-from transcript1 import main_phonetic as phonetic
-from transcript1 import main_phonematic as phonematic
+from transcript import main_phonetic as phonetic
+from transcript import main_phonematic as phonematic
 
 func_lst = [phonetic, phonematic]
 
