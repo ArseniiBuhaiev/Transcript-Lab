@@ -4,3 +4,8 @@ __pycache__/
 .pytest_cache/
 .vscode/
 .venv/
+build/
+dist/
+/web_app.py
+/poetry.lock
+*.spec
