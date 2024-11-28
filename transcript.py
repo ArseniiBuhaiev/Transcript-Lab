@@ -231,14 +231,23 @@ def o_assimilation(word: str) -> str:
 
 def voice_assimilation(word: str) -> str:
   def replace_match(match):
-    unvoiced = match.group(1)
-    misc = match.group(2)
-    voiced = match.group(3)
-    result = voice_assimilation_map[unvoiced] + misc + voiced
+    voiceless = match.group(1)
+    voiced = match.group(2)
+    result = voice_assimilation_map[voiceless] + voiced
 
     return result
 
-  return re.sub(r"([цкшхфпчст])([´ߴ]*)([гзджбґ]|д͡з|д͡ж)", replace_match, word)
+  return re.sub(r"([цкшхфпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
+
+def voicelessness_assimilation(word: str) -> str:
+  def replace_match(match):
+    voiced = match.group(1)
+    voiceless = match.group(2)
+    result = "с" + voiceless
+
+    return result
+
+  return re.sub(r"(\bз)([цкшхфпчст])", replace_match, word)
 
 def WOP_assimilation(word: str) -> str:
   def replace_regressive(match):
@@ -297,6 +306,7 @@ def main_phonetic(word: str) -> str:
     transcription = palatalisation(transcription)
     transcription = labialisation(transcription)
     transcription = voice_assimilation(transcription)
+    transcription = voicelessness_assimilation(transcription)
     transcription = WOP_assimilation(transcription)
     transcription = softness_assimilation(transcription)
     transcription = sound_lengthening(transcription)
