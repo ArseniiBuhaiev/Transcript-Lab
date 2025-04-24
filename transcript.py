@@ -1,63 +1,8 @@
 import re
-from ukrainian_word_stress import Stressifier, StressSymbol
+from config import *
+from ukrainian_word_stress import Stressifier
 
 stressify = Stressifier(stress_symbol='\u0301')
-
-# Словник відображення йотованих букв до їх звуків
-jotted_map = {
-    "я": "а",
-    "ю": "у",
-    "є": "е",
-    "ї": "і"
-}
-
-# Словник відображення приголосних до їхніх вокалізованих відповідників
-vocalized_map = {
-    "в" : "ў",
-    "j" : "ĭ"
-}
-
-# Словник відображення голосних до їхніх назалізованих відповідників
-nasalized_map = {
-    "а" : "ã",
-    "у" : "ỹ",
-    "о" : "õ",
-    "е" : "ẽ",
-    "і" : "ĩ",
-    "и" : "и\u0303",
-}
-
-# Словник відображення звуків, до яких наближаються ненаголошені [и] та [е]
-reduction_map = {
-  "и" : "ᵉ",
-  "е" : "ᴻ",
-  "ẽ" : "ᴻ"
-}
-
-# Словник відображення результатів асиміляції за дзвінкістю
-voice_assimilation_map = {
-  "ц": "д͡з",
-  "к": "ґ",
-  "ш": "ж",
-  "х": "г",
-  "п": "б",
-  "ч": "д͡ж",
-  "с": "з",
-  "т": "д"
-}
-
-# Словник відображення результатів асиміляції за способом творення
-WOP_assimilation_map = {
-  "д": "д͡з",
-  "т": "ц"
-}
-
-# Множина, що містить голосні
-vowels = {"а", "у", "о", "е", "і", "и", "ї", "є",
-          "я", "ю", "ã", "ỹ", "õ", "ẽ", "ĩ"}
-
-# Множина, що містить приголосні, що не бувають м'якими
-half_palatalized = {"б", "п", "в", "м", "ф", "ч", "ґ", "к", "х", "г"}
 
 # Функція наголосу
 def stress(word: str) -> str:
@@ -200,7 +145,7 @@ def sound_lengthening(word: str) -> str:
 
     return result
 
-  lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|[^д͡]ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|[^д͡]з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
+  lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
   contraction = re.sub(r"(ц':)(.)", replace_contraction, lengthening)
 
   return contraction
@@ -294,6 +239,22 @@ def WOP_assimilation(word: str) -> str:
 
   return progressive
 
+# Функція асиміляції за місцем та способом творення
+def POPWOP_assimilation(word: str) -> str:
+  def replace_match(match):
+    target = match.group(1)
+    misc = match.group(2)
+    assimilator = match.group(3)
+    result = POPWOP_assimilation_map[target] + misc + assimilator
+    
+    return result
+
+  step1 = re.sub(r"([дт])('?)([жшч]|д͡ж)", replace_match, word)
+  step2 = re.sub(r"([зсц]|д͡з)('?)([жшч]|д͡ж)", replace_match, step1)
+  step3 = re.sub(r"([жшч]|д͡ж)('?)([зсц]|д͡з)", replace_match, step2)
+
+  return step3
+
 # Функція асиміляції за м'якістю
 def softness_assimilation(word: str) -> str:
   def replace_match(match):
@@ -310,8 +271,18 @@ def softness_assimilation(word: str) -> str:
   return optional
 
 def consonant_reduction(word: str, original: str) -> str:
+  def obligatory_replace(match):
+    prev = match.group(1)
+    next = match.group(2)
+    
+    result = f'{prev}{next}'
 
-  return consonant_reduction
+    return result
+
+  if re.findall(r'зап\'ястн|хвастн', original):
+    return word
+  else:
+    return re.sub(r"(?:)(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
 
 # Функція транскрибування слова
 def main_phonetic(word: str) -> str:
@@ -331,39 +302,28 @@ def main_phonetic(word: str) -> str:
     transcription = nasalisation(transcription)
     transcription = shch(transcription)
     transcription = palatalisation(transcription)
+    transcription = consonant_reduction(transcription, word_cleared)
     transcription = labialisation(transcription)
     transcription = voice_assimilation(transcription)
     transcription = voicelessness_assimilation(transcription)
     transcription = WOP_assimilation(transcription)
+    transcription = POPWOP_assimilation(transcription)
     transcription = softness_assimilation(transcription)
     transcription = sound_lengthening(transcription)
     transcription = i_type_articulation(transcription)
     transcription = o_assimilation(transcription)
     transcription = vowels_reduction(transcription)
 
-    result = f"[{transcription}]"
-    return result
+    if '\u0301' in transcription:
+      result = f"[{transcription}]"
+      return result
+    else:
+      return 'ПОМИЛКА: У слові не визначено наголос'
   
 def main_phonematic(word: str) -> str:
-  word_cleared = ((word.strip()).casefold()).replace("-", "")
-  char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;]", word_cleared)
-  if char_check:
-    return "ПОМИЛКА: Виявлено невідомі символи"
-  elif " " in word_cleared:
-    return "ПОМИЛКА: Було введено більше одного слова"
-  for i, char in enumerate(word_cleared):
-    if char == "%" and word_cleared[i-1] not in vowels:
-      return "ПОМИЛКА: Приголосний позначено як наголошений"
-  else:
-    transcription = jotted_letters(word_cleared)
-    transcription = vocalized_consonants(transcription)
-    transcription = shch(transcription)
-    transcription = palatalisation(transcription)
-    transcription = voice_assimilation(transcription)
-    transcription = sound_lengthening(transcription)
-    transcription = stress(transcription)
-    transcription = o_assimilation(transcription)
-    transcription = vowels_reduction(transcription)
+  phonematic = main_phonetic(word)
+  
 
-    result = f"/{transcription.replace("j", "й")}/"
-    return result
+
+  result = f"/{phonematic.replace('j', 'й')}/"
+  return result
