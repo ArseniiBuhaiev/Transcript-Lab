@@ -12,6 +12,12 @@ python = "^3.12"
 customtkinter = "^5.2.2"
 pyperclip = "^1.9.0"
 
+
+[[tool.poetry.source]]
+name = "ukrainian_word_stress"
+url = "https://github.com/lang-uk/ukrainian-word-stress"
+priority = "primary"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
