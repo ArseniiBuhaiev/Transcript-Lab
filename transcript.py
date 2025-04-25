@@ -157,16 +157,24 @@ def i_type_articulation(word: str) -> str:
 
 # Функція редукції ненаголошених
 def vowels_reduction(word: str) -> str:
-  def replace(match):
+  def e_to_y(match):
     target = match.group(1)
-    nasalisation = match.group(2)
-    postposition = match.group(3)
-    result = f"{target}{nasalisation}{reduction_map[target]}{postposition}"
+    result = f"{target}ᴻ"
     return result
+  def e_to_i(match):
+    target = match.group(1)
+    result = f"·{target}ⁱ·"
+    return result
+  def y_to_e(match):
+    target = match.group(1)
+    result = f"{target}ᵉ"
+    return result
+  
+  reduction = re.sub(r"([еẽ](?!\u0301))", e_to_y, word)
+  reduction = re.sub(r"·([еẽ])ᴻ·", e_to_i, reduction)
+  reduction = re.sub(r"([иũ])(?!\u0301)", y_to_e, reduction)
 
-  result = re.sub(r"([еẽи])(\u0303?)([аоуеиіãõỹẽиĩбпвўмфґкхшчжгдтзсцлнрjĭ·])", replace, word)
-
-  return result
+  return reduction
 
 # Функція наближення о до у
 def o_assimilation(word: str) -> str:
@@ -263,6 +271,7 @@ def softness_assimilation(word: str) -> str:
   
   return optional
 
+# Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
   def obligatory_replace(match):
     prev = match.group(1)
@@ -294,7 +303,9 @@ def check_input(word: str) -> str:
 # Функція транскрибування слова
 def phonetic(word: str) -> str:
   word = check_input(word)
-  if '\u0301' in word:
+  if word == "":
+    return ""
+  elif '\u0301' in word:
     transformations = (
       jotted_letters,
       vocalized_consonants,
@@ -317,15 +328,37 @@ def phonetic(word: str) -> str:
     for transformation in transformations:
       word = transformation(word)
 
-    return f'[{word}]'
-
+    result = word.replace('ũ', 'и\u0303')
+    return f'[{result}]'
   else:
     return 'ПОМИЛКА: У слові не визначено наголос'
   
 def phonematic(word: str) -> str:
-  phonematic = phonetic(word)
-  
+  word = check_input(word)
+  if word == "":
+    return ""
+  elif '\u0301' in word:
+    transformations = (
+      jotted_letters,
+      vocalized_consonants,
+      letters_to_sounds,
+      palatalisation,
+      consonant_reduction,
+      voice_assimilation,
+      voicelessness_assimilation,
+      WOP_assimilation,
+      POPWOP_assimilation,
+      softness_assimilation,
+      sound_lengthening,
+      o_assimilation,
+      vowels_reduction
+    )
 
+    for transformation in transformations:
+      word = transformation(word)
 
-  result = f"/{phonematic.replace('j', 'й')}/"
-  return result
+    result = word.replace('j', 'й')
+    return f'/{result}/'
+
+  else:
+    return 'ПОМИЛКА: У слові не визначено наголос'
