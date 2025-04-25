@@ -1,23 +1,23 @@
-[tool.poetry]
-name = "transcriptlab"
-version = "0.1.0"
-description = "Project designed to automate phonetic and phonematic transcription of Ukrainian text."
-authors = ["ArseniiBuhaiev <bugaev3202@ukr.net>"]
+[project]
+name = "phonetics-lab-ua"
+version = "1.0"
+description = "A tool designed to aid in phonetic research by automating the transcribing of Ukrainian texts."
+authors = [
+    {name = "ArseniiBuhaiev"}
+]
+license = {text = "MIT"}
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
+[tool.poetry]
 
 [tool.poetry.group.dev.dependencies]
+ukrainian-word-stress = "^1.1.1"
 customtkinter = "^5.2.2"
 pyperclip = "^1.9.0"
 
-
-[[tool.poetry.source]]
-name = "ukrainian_word_stress"
-url = "https://github.com/lang-uk/ukrainian-word-stress"
-priority = "primary"
-
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
