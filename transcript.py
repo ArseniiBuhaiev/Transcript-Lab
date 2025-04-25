@@ -23,21 +23,21 @@ def stress(word: str) -> str:
 # Функція заміни йотованих літер на відповідні звуки
 def jotted_letters(word: str) -> str:
   def two_sounds(match):
-    prev_symb = match.group(1)
-    if prev_symb == "'":
-      prev_symb = ''
+    preposition = match.group(1)
+    if preposition == "'":
+      preposition = ''
     else:
       pass
     jotted = match.group(2)
-    result = f"{prev_symb}j{jotted_map[jotted]}"
+    result = f"{preposition}j{jotted_map[jotted]}"
     return result
   def one_sound(match):
-    prev_symb = match.group(1)
+    preposition = match.group(1)
     jotted = match.group(2)
-    if prev_symb in half_palatalized:
-      result = f"{prev_symb}ߴ{jotted_map[jotted]}"
+    if preposition in half_palatalized:
+      result = f"{preposition}ߴ{jotted_map[jotted]}"
     else:
-      result = f"{prev_symb}\'{jotted_map[jotted]}"
+      result = f"{preposition}\'{jotted_map[jotted]}"
     return result
   
   result = re.sub(r"й", "j", word)
@@ -64,26 +64,23 @@ def vocalized_consonants(word: str) -> str:
 
 # Функція назалізації голосного
 def nasalisation(word: str) -> str:
-  def replace_one(match):
-    prev_symb = match.group(1)
-    target = match.group(2)
-    result = f"{prev_symb}{nasalized_map[target]}"
-    return result
-  
-  def replace_two(match):
-    target = match.group(1)
+  def replace_match(match):
+    preposition = match.group(1)
     stress = match.group(2)
-    next_symb = match.group(3)
-    result = f"{nasalized_map[target]}{stress}{next_symb}"
-    return result
+    nasal = match.group(3)
+    postposition = match.group(4)
+    try:
+      result = f"{nasalized_map[preposition]}{stress}{nasal}{nasalized_map[postposition]}"
+      return result
+    except:
+      return f"{preposition}{stress}{nasal}{postposition}"
 
-  step_one = re.sub(r"([нм]'?)([аоуеіи])", replace_one, word)
-  step_two = re.sub(r"([аоуеіи])(\u0301?)([нм])", replace_two, step_one)
+  nasalisation = re.sub(r"([аоуеіи]?)(\u0301?)([нм]'?)([аоуеіи]?)", replace_match, word)
 
-  return step_two
+  return nasalisation
 
 # Функція Щ, дж, дз
-def shch(word: str) -> str:
+def letters_to_sounds(word: str) -> str:
   shch = re.sub(r"щ", "шч", word)
   dzh = re.sub(r"дж", "д͡ж", shch)
   dz = re.sub(r"дз", "д͡з", dzh)
@@ -94,19 +91,19 @@ def shch(word: str) -> str:
 def palatalisation(word: str) -> str:
   def replace_soft(match):
     target = match.group(1)
-    next_symb = match.group(2)
-    if next_symb == "ь":
+    postposition = match.group(2)
+    if postposition == "ь":
       result = f"{target}'"
     else:
-      result = f"{target}'{next_symb}"
+      result = f"{target}'{postposition}"
     return result
   def replace_half_soft(match):
     target = match.group(1)
-    next_symb = match.group(2)
-    if next_symb == "ь":
+    postposition = match.group(2)
+    if postposition == "ь":
       result = f"{target}ߴ"
     else:
-      result = f"{target}ߴ{next_symb}"
+      result = f"{target}ߴ{postposition}"
     return result
 
   palatalize = re.sub(r"([дтзсцлнр])([ьіĩ])", replace_soft, word)
@@ -119,8 +116,8 @@ def labialisation(word: str) -> str:
   def replace(match):
     target = match.group(1)
     palatalisation = match.group(2)
-    next_symb = match.group(3)
-    result = f"{target}{palatalisation}°{next_symb}"
+    postposition = match.group(3)
+    result = f"{target}{palatalisation}°{postposition}"
     return result
 
   result = re.sub(r"([бпвмфґкхшчжгдтзсцлнр])(['ߴ]?)([оõуỹ])", replace, word)
@@ -131,38 +128,26 @@ def labialisation(word: str) -> str:
 def sound_lengthening(word: str) -> str:
   def replace(match):
     target = match.group(1)
-    next_symb = match.group(2)
-    result = f"{target[:len(target)//2]}{next_symb}:"
-    return result
-  
-  def replace_contraction(match):
-    target = match.group(1)
-    next_symb = match.group(2)
-
-    if next_symb == 'а':
-      result = target + next_symb
-    else:
-      result = 'ц\'' + next_symb
-
+    postposition = match.group(2)
+    result = f"{target[:len(target)//2]}{postposition}:"
     return result
 
   lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
-  contraction = re.sub(r"(ц':)(.)", replace_contraction, lengthening)
 
-  return contraction
+  return lengthening
 
 # Функція додавання знака і-подібної артикуляції
 def i_type_articulation(word: str) -> str:
   def replace_regressive(match):
     target = match.group(1)
     stress = match.group(2)
-    next_symb = match.group(3)
-    result = f"{target}{stress}·{next_symb}"
+    postposition = match.group(3)
+    result = f"{target}{stress}·{postposition}"
     return result
   def replace_progressive(match):
     target = match.group(2)
-    prev_symb = match.group(1)
-    result = f"{prev_symb}·{target}"
+    preposition = match.group(1)
+    result = f"{preposition}·{target}"
     return result
 
   regressive = re.sub(r"([аоуеãõỹẽ])(\u0301?)(j|\w'|д͡з')", replace_regressive, word)
@@ -175,8 +160,8 @@ def vowels_reduction(word: str) -> str:
   def replace(match):
     target = match.group(1)
     nasalisation = match.group(2)
-    next_symb = match.group(3)
-    result = f"{target}{nasalisation}{reduction_map[target]}{next_symb}"
+    postposition = match.group(3)
+    result = f"{target}{nasalisation}{reduction_map[target]}{postposition}"
     return result
 
   result = re.sub(r"([еẽи])(\u0303?)([аоуеиіãõỹẽиĩбпвўмфґкхшчжгдтзсцлнрjĭ·])", replace, word)
@@ -187,8 +172,8 @@ def vowels_reduction(word: str) -> str:
 def o_assimilation(word: str) -> str:
   def replace(match):
     target = match.group(1)
-    next_symb = match.group(2)
-    result = f"{target}ʸ{next_symb}"
+    postposition = match.group(2)
+    result = f"{target}ʸ{postposition}"
     return result
 
   result = re.sub(r"(о)((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
@@ -308,7 +293,7 @@ def main_phonetic(word: str) -> str:
     transcription = jotted_letters(transcription)
     transcription = vocalized_consonants(transcription)
     transcription = nasalisation(transcription)
-    transcription = shch(transcription)
+    transcription = letters_to_sounds(transcription)
     transcription = palatalisation(transcription)
     transcription = consonant_reduction(transcription, word_cleared)
     transcription = labialisation(transcription)
