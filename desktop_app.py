@@ -1,15 +1,32 @@
 from tkinter import *
 from customtkinter import *
+import os
 import pyperclip
 from transcript import main_phonetic as phonetic
 from transcript import main_phonematic as phonematic
 
-func_lst = [phonetic, phonematic]
+def write_to_file(text, fp):
+    if os.path.exists(fp):
+        with open(fp, 'a', encoding='utf-8') as file:
+            file.write(f'\n{text}')
+    else:
+        with open(fp, 'w', encoding='utf-8') as file:
+            file.write(text)
+
+def read_from_file(fp):
+    with open(fp, 'r', encoding='utf-8') as file:
+        from_file = file.read()
+        return from_file
+
+def enter_behaviour(event):
+    if event.state & (0x0001 | 0x0004):
+        return
+    else:
+        transcribe()
+        return 'break'
 
 def transcribe():
-    global func_lst
-    global type_selected
-    global output_field
+    func_lst = [phonetic, phonematic]
     get_type = type_selected.get()
     picked_func = func_lst[get_type]
     user_input = input_field.get(1.0, END)
@@ -18,48 +35,38 @@ def transcribe():
     output_field.delete(1.0, END)
     output_field.insert(END, transcription)
     output_field.configure(state="disabled")
-    copy_button.place(x = 1075, y=400, anchor=E)
-    save_button.place(x = 1075, y=460, anchor=E)
+    show_buttons()
+
+def show_buttons():
+    transcription = output_field.get(1.0, END)
+    if transcription != '' and 'ПОМИЛКА' not in transcription:
+        copy_button.place(x = 1075, y=400, anchor=E)
+        save_button.place(x = 1075, y=460, anchor=E)
+    else:
+        copy_button.place_forget()
+        save_button.place_forget()
 
 def load():
-    global func_lst
-    global type_selected
-    get_type = type_selected.get()
-    picked_func = func_lst[get_type]
-    result = ""
     load_path = filedialog.askopenfilename(filetypes=[("Текстовий файл", "*.txt")])
     if load_path:
-        with open(load_path, "r", encoding="utf-8") as fp:
-            text = fp.read()
-            for word in text.split():
-                transcription = picked_func(word)
-                result += f'{word.strip()}: {transcription.strip()}\n'
-            if result != "":
-                save_path = filedialog.asksaveasfilename(initialfile=f"транскрипція.txt",
-                                                         filetypes=[("Текстовий файл", "*.txt")])
-                if save_path:
-                    with open(save_path, "w+", encoding="utf-8") as fp:
-                        fp.write(result)
+        text = read_from_file(load_path)
+        input_field.delete(1.0, END)
+        input_field.insert(END, text)
+        transcribe()
         
-
 def copy():
-    global output_field
-    pyperclip.copy(output_field.get(1.0, END))
+    pyperclip.copy(output_field.get(1.0, END).strip())
 
 def save():
-    global input_field
-    global output_field
-
     word = input_field.get(1.0, END)
     transcription = output_field.get(1.0, END)
 
-    if transcription != "":
-        directory = filedialog.asksaveasfilename(initialfile=f"{word.replace('!', '').strip()}_транскрипція.txt",
+    if transcription != "" and 'ПОМИЛКА' not in transcription:
+        result = f'{word.replace('%', '').strip()}: {transcription.strip()}'
+        save_path = filedialog.asksaveasfilename(initialfile=f"{word.replace('%', '').strip()}_транскрипція.txt",
                                                  filetypes=[("Текстовий файл", "*.txt")])
-        if directory:
-            with open(directory, "w+", encoding="utf-8") as fp:
-                fp.write(f'{word.strip()}: {transcription.strip()}')
-                fp.close()
+        if save_path:
+            write_to_file(result, save_path)
 
 #Створення інтерфейсу
 ui = Tk()
@@ -102,6 +109,9 @@ transcribe_button = CTkButton(ui, text="ТРАНСКРИБУВАТИ", font=("Ca
 load_button = CTkButton(ui, text="ЗАВАНТАЖИТИ З ФАЙЛУ .txt", font=("Cambria", 20), height=50, width=500, corner_radius=5, command=load)
 copy_button = CTkButton(ui, text="СКОПІЮВАТИ", font=("Cambria", 20), height=50, width=500, corner_radius=5, command=copy)
 save_button = CTkButton(ui, text="ЗБЕРЕГТИ В .txt", font=("Cambria", 20), height=50, width=500, corner_radius=5, command=save)
+#Виклик результату по натисканню клавіші Enter та зміна його поведінки у вікні для вводу
+input_field.bind('<Return>', enter_behaviour)
+
 
 #Розміщення елементів інтерфейсу
 info_field.place(x=25, y=25)

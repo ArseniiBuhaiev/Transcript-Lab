@@ -51,13 +51,14 @@ def jotted_letters(word: str) -> str:
 # Функція заміни "в" та "й" на відповідні вокалізовані приголосні
 def vocalized_consonants(word: str) -> str:
   def replace(match):
-    target = match.group(1)
-    next_symb = match.group(2)
+    vowel = match.group(1)
+    target = match.group(2)
+    consonant = match.group(3)
     
-    result = f"{vocalized_map[target]}{next_symb}"
+    result = f"{vowel}{vocalized_map[target]}{consonant}"
     return result
   
-  result = re.sub(r"([вj])([цкнгшзхфвпрлджчсмтбґj])", replace, word)
+  result = re.sub(r"([ауоеіиїєяю']\u0301?|\b)([вj])([цкнгшзхфвпрлджчсмтбґj]|\b)", replace, word)
 
   return result
 
