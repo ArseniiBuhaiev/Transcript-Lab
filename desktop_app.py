@@ -2,8 +2,8 @@ from tkinter import *
 from customtkinter import *
 import os
 import pyperclip
-from transcript import main_phonetic as phonetic
-from transcript import main_phonematic as phonematic
+from transcript import phonetic
+from transcript import phonematic
 
 def write_to_file(text, fp):
     if os.path.exists(fp):

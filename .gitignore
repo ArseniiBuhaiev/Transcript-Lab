@@ -6,7 +6,7 @@ __pycache__/
 .venv/
 build/
 dist/
-/web_app.py
-/tokenization.py
+tokenization.py
 /poetry.lock
 *.spec
+web_app.py

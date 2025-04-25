@@ -263,7 +263,7 @@ def softness_assimilation(word: str) -> str:
   
   return optional
 
-def consonant_reduction(word: str, original: str) -> str:
+def consonant_reduction(word: str) -> str:
   def obligatory_replace(match):
     prev = match.group(1)
     next = match.group(2)
@@ -272,13 +272,13 @@ def consonant_reduction(word: str, original: str) -> str:
 
     return result
 
-  if re.findall(r'зап\'ястн|хвастн', original):
+  if re.findall(r'запj·а́стн|хвастн', word):
     return word
   else:
-    return re.sub(r"(?:)(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
+    return re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
 
-# Функція транскрибування слова
-def main_phonetic(word: str) -> str:
+# Функція перевірки правильності введеного слова
+def check_input(word: str) -> str:
   word_cleared = ((word.strip()).casefold()).replace("-", "")
   char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;!+=\$№#@\"&]", word_cleared)
   if char_check:
@@ -286,35 +286,44 @@ def main_phonetic(word: str) -> str:
   elif " " in word_cleared:
     return "ПОМИЛКА: Було введено більше одного слова"
   for i, char in enumerate(word_cleared):
-    if char == "!" and word_cleared[i-1] not in vowels:
+    if char == "%" and word_cleared[i-1] not in vowels:
       return "ПОМИЛКА: Приголосний позначено як наголошений"
   else:
-    transcription = stress(word_cleared)
-    transcription = jotted_letters(transcription)
-    transcription = vocalized_consonants(transcription)
-    transcription = nasalisation(transcription)
-    transcription = letters_to_sounds(transcription)
-    transcription = palatalisation(transcription)
-    transcription = consonant_reduction(transcription, word_cleared)
-    transcription = labialisation(transcription)
-    transcription = voice_assimilation(transcription)
-    transcription = voicelessness_assimilation(transcription)
-    transcription = WOP_assimilation(transcription)
-    transcription = POPWOP_assimilation(transcription)
-    transcription = softness_assimilation(transcription)
-    transcription = sound_lengthening(transcription)
-    transcription = i_type_articulation(transcription)
-    transcription = o_assimilation(transcription)
-    transcription = vowels_reduction(transcription)
+    return stress(word_cleared)
 
-    if '\u0301' in transcription:
-      result = f"[{transcription}]"
-      return result
-    else:
-      return 'ПОМИЛКА: У слові не визначено наголос'
+# Функція транскрибування слова
+def phonetic(word: str) -> str:
+  word = check_input(word)
+  if '\u0301' in word:
+    transformations = (
+      jotted_letters,
+      vocalized_consonants,
+      nasalisation,
+      letters_to_sounds,
+      palatalisation,
+      consonant_reduction,
+      labialisation,
+      voice_assimilation,
+      voicelessness_assimilation,
+      WOP_assimilation,
+      POPWOP_assimilation,
+      softness_assimilation,
+      sound_lengthening,
+      i_type_articulation,
+      o_assimilation,
+      vowels_reduction
+    )
+
+    for transformation in transformations:
+      word = transformation(word)
+
+    return f'[{word}]'
+
+  else:
+    return 'ПОМИЛКА: У слові не визначено наголос'
   
-def main_phonematic(word: str) -> str:
-  phonematic = main_phonetic(word)
+def phonematic(word: str) -> str:
+  phonematic = phonetic(word)
   
 
 

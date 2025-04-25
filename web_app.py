@@ -1,6 +1,6 @@
 import gradio as gr
-from transcript import main_phonetic as phonetic
-from transcript import main_phonematic as phonematic
+from transcript import phonetic as phonetic
+from transcript import phonematic as phonematic
 
 with gr.Blocks() as web:
     with gr.Row():
