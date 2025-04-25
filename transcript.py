@@ -209,13 +209,20 @@ def voice_assimilation(word: str) -> str:
 # Функція обов'язкової асиміляції за глухістю
 def voicelessness_assimilation(word: str) -> str:
   def replace_match(match):
-    voiced = match.group(1)
     voiceless = match.group(2)
-    result = "с" + voiceless
+    return "с" + voiceless
 
-    return result
+  def exceptions(match):
+    preposition = match.group(1)
+    stress = match.group(2)
+    postposition = match.group(3)
 
-  return re.sub(r"(\bз)([цкшхфпчст])", replace_match, word)
+    return f'{preposition}{stress}х{postposition}'
+  
+  is_exception = re.sub(r"(ле|в°о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
+  obligatory = re.sub(r"(\bз)([цкшхфпчст])", replace_match, is_exception)
+  
+  return obligatory
 
 # Функція асиміляції за способом творення
 def WOP_assimilation(word: str) -> str:
