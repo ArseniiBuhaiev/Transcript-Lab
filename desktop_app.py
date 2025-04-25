@@ -60,13 +60,11 @@ def copy():
 def save():
     word = input_field.get(1.0, END)
     transcription = output_field.get(1.0, END)
-
-    if transcription != "" and 'ПОМИЛКА' not in transcription:
-        result = f'{word.replace('%', '').strip()}: {transcription.strip()}'
-        save_path = filedialog.asksaveasfilename(initialfile=f"{word.replace('%', '').strip()}_транскрипція.txt",
-                                                 filetypes=[("Текстовий файл", "*.txt")])
-        if save_path:
-            write_to_file(result, save_path)
+    result = f'{word.replace('%', '').strip()}: {transcription.strip()}'
+    save_path = filedialog.asksaveasfilename(initialfile=f"{word.replace('%', '').strip()}_транскрипція.txt",
+                                             filetypes=[("Текстовий файл", "*.txt")])
+    if save_path:
+        write_to_file(result, save_path)
 
 #Створення інтерфейсу
 ui = Tk()
