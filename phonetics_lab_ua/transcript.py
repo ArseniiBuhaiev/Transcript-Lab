@@ -1,5 +1,5 @@
 import re
-from config import *
+from phonetics_lab_ua.config import *
 from ukrainian_word_stress import Stressifier
 
 stressify = Stressifier(stress_symbol='\u0301')

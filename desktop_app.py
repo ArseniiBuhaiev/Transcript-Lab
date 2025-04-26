@@ -2,8 +2,8 @@ from tkinter import *
 from customtkinter import *
 import os
 import pyperclip
-from transcript import phonetic
-from transcript import phonematic
+from phonetics_lab_ua import phonetic
+from phonetics_lab_ua import phonematic
 
 # Функція запису до файлу
 def write_to_file(text, fp):
