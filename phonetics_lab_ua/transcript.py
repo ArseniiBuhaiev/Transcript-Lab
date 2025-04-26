@@ -1,5 +1,5 @@
 import re
-from phonetics_lab_ua.config import *
+from .config import *
 from ukrainian_word_stress import Stressifier
 
 stressify = Stressifier(stress_symbol='\u0301')
@@ -284,7 +284,10 @@ def consonant_reduction(word: str) -> str:
   if re.findall(r'запj·а́стн|хвастн', word):
     return word
   else:
-    return re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
+    reduction = re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
+    contraction = re.sub(r"сс", "с", reduction)
+
+    return contraction
 
 # Функція перевірки правильності введеного слова
 def check_input(word: str) -> str:
@@ -351,13 +354,14 @@ def phonematic(word: str) -> str:
       softness_assimilation,
       sound_lengthening,
       o_assimilation,
+      i_type_articulation,
       vowels_reduction
     )
 
     for transformation in transformations:
       word = transformation(word)
 
-    result = word.replace('j', 'й')
+    result = word.replace('j', 'й').replace('·', '')
     return f'/{result}/'
 
   else:

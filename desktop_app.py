@@ -107,7 +107,6 @@ save_button = CTkButton(ui, text="ЗБЕРЕГТИ В .txt", font=("Cambria", 20
 input_field.bind('<Return>', enter_behaviour)
 
 # Розміщення елементів інтерфейсу
-#info_field.place(x=25, y=25)
 input_label.place(x=25, y=25)
 output_label.place(x=575, y=25)
 input_field.place(x=25, y=70)

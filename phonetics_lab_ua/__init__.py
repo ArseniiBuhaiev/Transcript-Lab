@@ -1,2 +1,2 @@
-from config import *
-from transcript import *
+from .config import *
+from .transcript import *
