@@ -212,7 +212,7 @@ def voicelessness_assimilation(word: str) -> str:
 
     return f'{preposition}{stress}х{postposition}'
   
-  is_exception = re.sub(r"(ле|в°о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
+  is_exception = re.sub(r"(ле|в°?о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
   obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
   
   return obligatory
@@ -260,8 +260,9 @@ def softness_assimilation(word: str) -> str:
     return result
 
   obligatory = re.sub(r"([дтн])([дтн])(['])", replace_match, word)
+  optional = re.sub(r"([зсц]|д͡з)([цкнгґшзхфвпрлджчсмтб]|д͡з|д͡ж)(['ߴ])", replace_match, obligatory)
   
-  return obligatory
+  return optional
 
 # Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
