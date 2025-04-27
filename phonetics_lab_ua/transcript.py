@@ -43,8 +43,8 @@ def jotted_letters(word: str) -> str:
   result = re.sub(r"й", "j", word)
 
   while bool(re.findall("[яюєї]", result)):
-    step_one = re.sub(r"([ауоеіиїєяю']\u0301?|\b)([яюєї])", two_sounds, result)
-    result = re.sub(r"([цкнгшзхфвпрлджчсмтбґй])([яюєї])", one_sound, step_one)
+    step_one = re.sub(r"([ауоеіиїєяюьj']\u0301?|\b)([яюєї])", two_sounds, result)
+    result = re.sub(r"([цкнгшзхфвпрлджчсмтбґj])([яюєї])", one_sound, step_one)
 
   return result
 
@@ -120,7 +120,7 @@ def labialisation(word: str) -> str:
     result = f"{target}{palatalisation}°{postposition}"
     return result
 
-  result = re.sub(r"([бпвмфґкхшчжгдтзсцлнр])(['ߴ]?)([оõуỹ])", replace, word)
+  result = re.sub(r"([бпвмфґкхшчжгдтзсцлнрj])(['ߴ]?)([оõуỹ])", replace, word)
 
   return result
 
@@ -132,7 +132,7 @@ def sound_lengthening(word: str) -> str:
     result = f"{target[:len(target)//2]}{postposition}:"
     return result
 
-  lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
+  lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|j°?j|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
 
   return lengthening
 
@@ -184,7 +184,7 @@ def o_assimilation(word: str) -> str:
     result = f"{target}ʸ{postposition}"
     return result
 
-  result = re.sub(r"(о)((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
+  result = re.sub(r"([оõ])((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
 
   return result
 
@@ -197,7 +197,7 @@ def voice_assimilation(word: str) -> str:
 
     return result
 
-  return re.sub(r"([цкшхфпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
+  return re.sub(r"([цкшхпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
 
 # Функція обов'язкової асиміляції за глухістю
 def voicelessness_assimilation(word: str) -> str:
@@ -213,7 +213,7 @@ def voicelessness_assimilation(word: str) -> str:
     return f'{preposition}{stress}х{postposition}'
   
   is_exception = re.sub(r"(ле|в°о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
-  obligatory = re.sub(r"(\bз)([цкшхфпчст])", replace_match, is_exception)
+  obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
   
   return obligatory
 
@@ -227,18 +227,11 @@ def WOP_assimilation(word: str) -> str:
     
     return result
   
-  def replace_progressive(match):
-    assimilator = match.group(1)
-    misc = match.group(2)
+  in_verbs = re.sub(r"т'с'а$", "ц':а", word)
+  regressive = re.sub(r"([дт])('?)([зсц]|д͡з)", replace_regressive, in_verbs)
+  progressive_in_non_verbs = re.sub(r"цс'", "ц'", regressive)
 
-    result = assimilator + misc + "ц"
-    
-    return result
-
-  regressive = re.sub(r"([дт])('?)([зсц]|д͡з)", replace_regressive, word)
-  progressive = re.sub(r"(ц)('?)(с)", replace_progressive, regressive)
-
-  return progressive
+  return progressive_in_non_verbs
 
 # Функція асиміляції за місцем та способом творення
 def POPWOP_assimilation(word: str) -> str:
@@ -267,9 +260,8 @@ def softness_assimilation(word: str) -> str:
     return result
 
   obligatory = re.sub(r"([дтн])([дтн])(['])", replace_match, word)
-  optional = re.sub(r"([зсц])([цкнгґшзхфвпрлджчсмтб]|д͡з|д͡ж)(['ߴ])", replace_match, obligatory)
   
-  return optional
+  return obligatory
 
 # Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
@@ -331,7 +323,7 @@ def phonetic(word: str) -> str:
     for transformation in transformations:
       word = transformation(word)
 
-    result = word.replace('ũ', 'и\u0303')
+    result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
     return f'[{result}]'
   else:
     return 'ПОМИЛКА: У слові не визначено наголос'
