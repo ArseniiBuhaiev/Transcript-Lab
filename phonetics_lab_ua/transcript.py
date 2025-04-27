@@ -4,8 +4,17 @@ from ukrainian_word_stress import Stressifier
 
 stressify = Stressifier(stress_symbol='\u0301')
 
-# Функція наголосу
 def stress(word: str) -> str:
+  """
+  Позначає наголошений у слові вручну, якщо користувач уточнив, або автоматично.\n
+  Marks the stressed vowel in a word manually, if user has specified so, or automatically.
+  
+  Args:
+    word (str): Word without a stress mark
+
+  Returns:
+    str: Word with stressed vowel marked
+  """
   vowel_count = 0
   for char in word:
     if char in vowels:
@@ -20,8 +29,17 @@ def stress(word: str) -> str:
   else:
     return stressify(word)
 
-# Функція заміни йотованих літер на відповідні звуки
 def jotted_letters(word: str) -> str:
+  """
+  Трансформує йотовані літери у звуки, які вони позначають.\n
+  Transforms jotted letters into sounds, which they denote.
+
+  Args:
+    word (str): Word with jotted letters
+
+  Returns:
+    str: Word with jotted letters transformed to sounds
+  """
   global rules_used
   def two_sounds(match):
     preposition = match.group(1)
@@ -53,7 +71,17 @@ def jotted_letters(word: str) -> str:
   return result
 
 # Функція заміни "в" та "й" на відповідні вокалізовані приголосні
-def vocalized_consonants(word: str) -> str:
+def vocalised_consonants(word: str) -> str:
+  """
+  Позначає вокалізацію [в] та [j] після голосного/на початку слова перед приголосним/у кінці слова.\n
+  Marks vocalisation of [в] and [j] after vowel/at the start of the word before the consonant/at the end of the word.
+
+  Args:
+    word (str): Word with [в] and/or [j] sounds
+
+  Returns:
+    str: Word with vocalized consonants
+  """
   global rules_used
   def replace(match):
     vowel = match.group(1)
@@ -72,6 +100,16 @@ def vocalized_consonants(word: str) -> str:
 
 # Функція назалізації голосного
 def nasalisation(word: str) -> str:
+  """
+  Позначає назалізацію голосних в оточенні носових приголосних.\n
+  Marks nasalisation of vowels in a nasal consonants surrounding.
+
+  Args:
+    word (str): Word with vowels in a nasal consonants surrounding
+
+  Returns:
+    str: Word with marked nasalisation
+  """
   global rules_used
   def replace_match(match):
     preposition = match.group(1)
@@ -93,6 +131,16 @@ def nasalisation(word: str) -> str:
 
 # Функція Щ, дж, дз
 def letters_to_sounds(word: str) -> str:
+  """
+  Трансформує Щ, ДЖ, та ДЗ у відповідні звуки.\n
+  Transforms Щ, ДЖ and ДЗ into corresponding sounds.
+
+  Args:
+    word (str): Word with Щ and/or ДЖ and/or ДЗ
+
+  Returns:
+    str: Word with Щ, ДЖ, ДЗ transformed to sounds
+  """
   global rules_used
   shch = re.sub(r"щ", "шч", word)
   dzh = re.sub(r"дж", "д͡ж", shch)
@@ -105,11 +153,20 @@ def letters_to_sounds(word: str) -> str:
   if dz != word:
     rules_used.append('-Перетворення дз на [д͡з]')
   
-
   return dz
 
 # Функція палаталізації приголосного
 def palatalisation(word: str) -> str:
+  """
+  Позначає палаталізацію приголосних.\n
+  Marks palatalised consonants.
+
+  Args:
+    word (str): Word with palatalised consonants
+
+  Returns:
+    str: Word with marked palatalised consonants
+  """
   global rules_used
   def replace_soft(match):
     target = match.group(1)
@@ -140,6 +197,16 @@ def palatalisation(word: str) -> str:
 
 # Функція додавання огублення звуків
 def labialisation(word: str) -> str:
+  """
+  Позначає лабіалізацію приголосних.\n
+  Marks labialised consonants.
+
+  Args:
+    word (str): Word with labialised consonants
+
+  Returns:
+    str: Word with marked labialised consonants
+  """
   global rules_used
   def replace(match):
     target = match.group(1)
@@ -157,6 +224,16 @@ def labialisation(word: str) -> str:
 
 # Функція додавання знака подовження
 def sound_lengthening(word: str) -> str:
+  """
+  Позначає подовження приголосних.\n
+  Marks consonant lenghthening.
+
+  Args:
+    word (str): Word with legthened consonants
+
+  Returns:
+    str: Word with marked legthened consonants
+  """
   global rules_used
   def replace(match):
     target = match.group(1)
@@ -173,6 +250,16 @@ def sound_lengthening(word: str) -> str:
 
 # Функція додавання знака і-подібної артикуляції
 def i_type_articulation(word: str) -> str:
+  """
+  Позначає зміну артикуляції голосних на і-подібну.\n
+  Marks change of the vowels articulation to that, similar of [і].
+
+  Args:
+    word (str): Word with legthened consonants
+
+  Returns:
+    str: Word with marked legthened consonants
+  """
   global rules_used
   def replace_regressive(match):
     target = match.group(1)
@@ -196,6 +283,16 @@ def i_type_articulation(word: str) -> str:
 
 # Функція редукції ненаголошених
 def vowels_reduction(word: str) -> str:
+  """
+  Позначає редукцію ненаголошених голосних.\n
+  Marks unstressed vowels reduction.
+
+  Args:
+    word (str): Word with unstressed vowels
+
+  Returns:
+    str: Word with marked unstressed vowels reduction
+  """
   global rules_used
   def e_to_y(match):
     target = match.group(1)
@@ -221,6 +318,16 @@ def vowels_reduction(word: str) -> str:
 
 # Функція наближення о до у
 def o_assimilation(word: str) -> str:
+  """
+  Позначає гармонійну асиміляцію [о].\n
+  Marks harmonic assimilation of [o].
+
+  Args:
+    word (str): Word with [o]
+
+  Returns:
+    str: Word with marked harmonic assimilation
+  """
   global rules_used
   def replace(match):
     target = match.group(1)
@@ -237,6 +344,16 @@ def o_assimilation(word: str) -> str:
 
 # Функція асиміляції за дзвінкістю
 def voice_assimilation(word: str) -> str:
+  """
+  Асимілює приголосні за дзвінкістю.\n
+  Assimilates consonants by voice.
+
+  Args:
+    word (str): Word with consonant assimilation by voice
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def replace_match(match):
     voiceless = match.group(1)
@@ -254,6 +371,16 @@ def voice_assimilation(word: str) -> str:
 
 # Функція обов'язкової асиміляції за глухістю
 def voicelessness_assimilation(word: str) -> str:
+  """
+  Асимілює приголосні за глухістю.\n
+  Assimilates consonants by voicelessness.
+
+  Args:
+    word (str): Word with consonant assimilation by voicelessness
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def replace_match(match):
     voiceless = match.group(2)
@@ -278,6 +405,16 @@ def voicelessness_assimilation(word: str) -> str:
 
 # Функція асиміляції за способом творення
 def WOP_assimilation(word: str) -> str:
+  """
+  Асимілює приголосні за місцем творення, стягує за потреби.\n
+  Assimilates consonants by the way of its production; contracts them if needed.
+
+  Args:
+    word (str): Word with consonant assimilation by the way of production
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def replace_regressive(match):
     target = match.group(1)
@@ -302,6 +439,16 @@ def WOP_assimilation(word: str) -> str:
 
 # Функція асиміляції за місцем та способом творення
 def POPWOP_assimilation(word: str) -> str:
+  """
+  Асимілює приголосні за місцем та способом творення.\n
+  Assimilates consonants by the place and the way of its production.
+
+  Args:
+    word (str): Word with consonant assimilation by the place and the way of its production
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def replace_match(match):
     target = match.group(1)
@@ -322,6 +469,16 @@ def POPWOP_assimilation(word: str) -> str:
 
 # Функція асиміляції за м'якістю
 def softness_assimilation(word: str) -> str:
+  """
+  Асимілює приголосні за м'якістю.\n
+  Assimilates consonants by softness.
+
+  Args:
+    word (str): Word with consonant assimilation by softness
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def replace_match(match):
     target = match.group(1)
@@ -343,6 +500,16 @@ def softness_assimilation(word: str) -> str:
 
 # Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
+  """
+  Спрощує приголосні у групах приголосних, стягує за потреби.\n
+  Reducts the consonants in consonant groups; contracts them if needed.
+
+  Args:
+    word (str): Word with consonant assimilation by softness
+
+  Returns:
+    str: Word with consonants assimilated
+  """
   global rules_used
   def obligatory_replace(match):
     prev = match.group(1)
@@ -367,6 +534,16 @@ def consonant_reduction(word: str) -> str:
 
 # Функція перевірки правильності введеного слова
 def check_input(word: str) -> str:
+  """
+  Перевіряє вхідні дані на недозволені символи, очищує від зайвих символів, приводить до нижнього регістру.\n
+  Checks the input for forbidden characters, cleans it up and lowercases it.
+
+  Args:
+    word (str): Word
+
+  Returns:
+    str: Clean, lowercased word with a marked stressed vowel
+  """
   word_cleared = ((word.strip()).casefold()).replace("-", "")
   char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;!+=\$№#@\"&]", word_cleared)
   if char_check:
@@ -381,6 +558,16 @@ def check_input(word: str) -> str:
 
 # Функція транскрибування слова
 def phonetic(word: str) -> str:
+  """
+  Фонетично транскрибує слово за набором правил.\n
+  Phonetically transcribes the word following a rule-set.
+
+  Args:
+    word (str): Orthographically written word
+
+  Returns:
+    str: Phonetic transcription of the word
+  """
   global rules_used
   word = check_input(word)
   if word == "":
@@ -388,7 +575,7 @@ def phonetic(word: str) -> str:
   elif '\u0301' in word:
     transformations = (
       jotted_letters,
-      vocalized_consonants,
+      vocalised_consonants,
       nasalisation,
       letters_to_sounds,
       palatalisation,
@@ -418,13 +605,23 @@ def phonetic(word: str) -> str:
     return 'ПОМИЛКА: У слові не визначено наголос'
   
 def phonematic(word: str) -> str:
+  """
+  Фонематично транскрибує слово за набором правил.\n
+  Phonematically transcribes the word following a rule-set.
+
+  Args:
+    word (str): Orthographically written word
+
+  Returns:
+    str: Phonematic transcription of the word
+  """
   word = check_input(word)
   if word == "":
     return ""
   elif '\u0301' in word:
     transformations = (
       jotted_letters,
-      vocalized_consonants,
+      vocalised_consonants,
       letters_to_sounds,
       palatalisation,
       consonant_reduction,
