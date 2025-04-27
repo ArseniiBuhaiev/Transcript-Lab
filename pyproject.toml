@@ -1,17 +1,17 @@
 [project]
 name = "phonetics-lab-ua"
-version = "1.0"
+version = "0.1.0"
 description = "A tool designed to aid in phonetic research by automating the transcribing of Ukrainian texts."
 authors = [
-    {name = "ArseniiBuhaiev", email = "bugaev3202@ukr.net}
+    {name = "ArseniiBuhaiev",email = "bugaev3202@ukr.net"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    ukrainian-word-stress = "^1.1.1"
-    customtkinter = "^5.2.2"
-    pyperclip = "^1.9.0"
+    "ukrainian-word-stress (>=1.1.1,<2.0.0)",
+    "customtkinter (>=5.2.2,<6.0.0)",
+    "pyperclip (>=1.9.0,<2.0.0)"
 ]
 
 [tool.poetry]

@@ -22,6 +22,7 @@ def stress(word: str) -> str:
 
 # Функція заміни йотованих літер на відповідні звуки
 def jotted_letters(word: str) -> str:
+  global rules_used
   def two_sounds(match):
     preposition = match.group(1)
     if preposition == "'":
@@ -46,10 +47,14 @@ def jotted_letters(word: str) -> str:
     step_one = re.sub(r"([ауоеіиїєяюьj']\u0301?|\b)([яюєї])", two_sounds, result)
     result = re.sub(r"([цкнгшзхфвпрлджчсмтбґj])([яюєї])", one_sound, step_one)
 
+  if result != word:
+    rules_used.append('-Перетворення йотованих літер')
+
   return result
 
 # Функція заміни "в" та "й" на відповідні вокалізовані приголосні
 def vocalized_consonants(word: str) -> str:
+  global rules_used
   def replace(match):
     vowel = match.group(1)
     target = match.group(2)
@@ -59,11 +64,15 @@ def vocalized_consonants(word: str) -> str:
     return result
   
   result = re.sub(r"([ауоеіиїєяю']\u0301?|\b)([вj])([цкнгшзхфвпрлджчсмтбґj]|\b)", replace, word)
+  
+  if result != word:
+    rules_used.append('-Вокалізація приголосних')
 
   return result
 
 # Функція назалізації голосного
 def nasalisation(word: str) -> str:
+  global rules_used
   def replace_match(match):
     preposition = match.group(1)
     stress = match.group(2)
@@ -76,19 +85,32 @@ def nasalisation(word: str) -> str:
       return f"{preposition}{stress}{nasal}{postposition}"
 
   nasalisation = re.sub(r"([аоуеіи]?)(\u0301?)([нм]'?)([аоуеіи]?)", replace_match, word)
-
+  
+  if nasalisation != word:
+    rules_used.append('-Назалізація')
+  
   return nasalisation
 
 # Функція Щ, дж, дз
 def letters_to_sounds(word: str) -> str:
+  global rules_used
   shch = re.sub(r"щ", "шч", word)
   dzh = re.sub(r"дж", "д͡ж", shch)
   dz = re.sub(r"дз", "д͡з", dzh)
+
+  if shch != word:
+    rules_used.append('-Перетворення щ на [шч]')
+  if dzh != word:
+    rules_used.append('-Перетворення дж на [д͡ж]')
+  if dz != word:
+    rules_used.append('-Перетворення дз на [д͡з]')
+  
 
   return dz
 
 # Функція палаталізації приголосного
 def palatalisation(word: str) -> str:
+  global rules_used
   def replace_soft(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -109,10 +131,16 @@ def palatalisation(word: str) -> str:
   palatalize = re.sub(r"([дтзсцлнр])([ьіĩ])", replace_soft, word)
   half_palatalize = re.sub(r"([бпвмфґгкхшчж])([ьіĩ])", replace_half_soft, palatalize)
 
+  if palatalize != word:
+    rules_used.append('-Палаталізація приголосних')
+  if half_palatalize != word and half_palatalize != palatalize:
+    rules_used.append('-Напівпалаталізація приголосних')
+
   return half_palatalize
 
 # Функція додавання огублення звуків
 def labialisation(word: str) -> str:
+  global rules_used
   def replace(match):
     target = match.group(1)
     palatalisation = match.group(2)
@@ -122,10 +150,14 @@ def labialisation(word: str) -> str:
 
   result = re.sub(r"([бпвмфґкхшчжгдтзсцлнрj])(['ߴ]?)([оõуỹ])", replace, word)
 
+  if result != word:
+    rules_used.append('-Лабіалізація приголосних')
+
   return result
 
 # Функція додавання знака подовження
 def sound_lengthening(word: str) -> str:
+  global rules_used
   def replace(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -134,10 +166,14 @@ def sound_lengthening(word: str) -> str:
 
   lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|j°?j|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
 
+  if lengthening != word:
+    rules_used.append('-Подовження приголосних')
+
   return lengthening
 
 # Функція додавання знака і-подібної артикуляції
 def i_type_articulation(word: str) -> str:
+  global rules_used
   def replace_regressive(match):
     target = match.group(1)
     stress = match.group(2)
@@ -153,10 +189,14 @@ def i_type_articulation(word: str) -> str:
   regressive = re.sub(r"([аоуеãõỹẽ])(\u0301?)(j|\w'|д͡з')", replace_regressive, word)
   progressive = re.sub(r"([j'][:°]*)([аоуеãõỹẽ])", replace_progressive, regressive)
 
+  if regressive != word or progressive != word:
+    rules_used.append('-і-подібна артикуляція голосних')
+
   return progressive
 
 # Функція редукції ненаголошених
 def vowels_reduction(word: str) -> str:
+  global rules_used
   def e_to_y(match):
     target = match.group(1)
     result = f"{target}ᴻ"
@@ -174,10 +214,14 @@ def vowels_reduction(word: str) -> str:
   reduction = re.sub(r"·([еẽ])ᴻ·", e_to_i, reduction)
   reduction = re.sub(r"([иũ])(?!\u0301)", y_to_e, reduction)
 
+  if reduction != word:
+    rules_used.append('-Редукція ненаголошених голосних')
+
   return reduction
 
 # Функція наближення о до у
 def o_assimilation(word: str) -> str:
+  global rules_used
   def replace(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -186,21 +230,31 @@ def o_assimilation(word: str) -> str:
 
   result = re.sub(r"([оõ])((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
 
+  if result != word:
+    rules_used.append('-Гармонійна асиміляція')
+
   return result
 
 # Функція асиміляції за дзвінкістю
 def voice_assimilation(word: str) -> str:
+  global rules_used
   def replace_match(match):
     voiceless = match.group(1)
     voiced = match.group(2)
     result = voice_assimilation_map[voiceless] + voiced
 
     return result
+  
+  result = re.sub(r"([цкшхпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
 
-  return re.sub(r"([цкшхпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
+  if result != word:
+    rules_used.append('-Асиміляція за дзвінкістю')
+
+  return result
 
 # Функція обов'язкової асиміляції за глухістю
 def voicelessness_assimilation(word: str) -> str:
+  global rules_used
   def replace_match(match):
     voiceless = match.group(2)
     return "с" + voiceless
@@ -214,11 +268,17 @@ def voicelessness_assimilation(word: str) -> str:
   
   is_exception = re.sub(r"(ле|в°?о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
   obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
+
+  if is_exception != word:
+    rules_used.append('-Асиміляція за глухістю (слово-виняток)')
+  elif obligatory != word:
+    rules_used.append('-Асиміляція за глухістю')
   
   return obligatory
 
 # Функція асиміляції за способом творення
 def WOP_assimilation(word: str) -> str:
+  global rules_used
   def replace_regressive(match):
     target = match.group(1)
     misc = match.group(2)
@@ -231,10 +291,18 @@ def WOP_assimilation(word: str) -> str:
   regressive = re.sub(r"([дт])('?)([зсц]|д͡з)", replace_regressive, in_verbs)
   progressive_in_non_verbs = re.sub(r"цс'", "ц'", regressive)
 
+  if in_verbs != word:
+    rules_used.append('-Регресивно-прогресивна асиміляція за способом творення без стягнення')
+  elif regressive != in_verbs and regressive != word:
+    rules_used.append('-Асиміляція за способом творення')
+  elif progressive_in_non_verbs != word:
+    rules_used.append('-Регресивно-прогресивна асиміляція за способом творення зі стягненням')
+
   return progressive_in_non_verbs
 
 # Функція асиміляції за місцем та способом творення
 def POPWOP_assimilation(word: str) -> str:
+  global rules_used
   def replace_match(match):
     target = match.group(1)
     misc = match.group(2)
@@ -247,10 +315,14 @@ def POPWOP_assimilation(word: str) -> str:
   step2 = re.sub(r"([зсц]|д͡з)('?)([жшч]|д͡ж)", replace_match, step1)
   step3 = re.sub(r"([жшч]|д͡ж)('?)([зсц]|д͡з)", replace_match, step2)
 
+  if step1 != word and step2 != word and step3 != word:
+    rules_used.append('-Асиміляція за місцем та способом творення')
+
   return step3
 
 # Функція асиміляції за м'якістю
 def softness_assimilation(word: str) -> str:
+  global rules_used
   def replace_match(match):
     target = match.group(1)
     palatalized = match.group(2)
@@ -261,11 +333,17 @@ def softness_assimilation(word: str) -> str:
 
   obligatory = re.sub(r"([дтн])([дтн])(['])", replace_match, word)
   optional = re.sub(r"([зсц]|д͡з)([цкнгґшзхфвпрлджчсмтб]|д͡з|д͡ж)(['ߴ])", replace_match, obligatory)
+
+  if obligatory != word:
+    rules_used.append('-Асиміляція за м\'якістю обов\'язкова')
+  elif optional != obligatory:
+    rules_used.append('-Асиміляція за м\'якістю, факультативна')
   
   return optional
 
 # Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
+  global rules_used
   def obligatory_replace(match):
     prev = match.group(1)
     next = match.group(2)
@@ -275,12 +353,17 @@ def consonant_reduction(word: str) -> str:
     return result
 
   if re.findall(r'запj·а́стн|хвастн', word):
+    rules_used.append('-Виняток, редукція приголосних')
     return word
   else:
     reduction = re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
-    contraction = re.sub(r"сс", "с", reduction)
+    if reduction != word:
+      rules_used.append('-Редукція приголосних')
+      contraction = re.sub(r"сс", "с", reduction)
+      if contraction != reduction:
+        rules_used.append('-Редукція приголосних, стягнення приголосних')
 
-    return contraction
+    return reduction
 
 # Функція перевірки правильності введеного слова
 def check_input(word: str) -> str:
@@ -298,6 +381,7 @@ def check_input(word: str) -> str:
 
 # Функція транскрибування слова
 def phonetic(word: str) -> str:
+  global rules_used
   word = check_input(word)
   if word == "":
     return ""
@@ -325,6 +409,10 @@ def phonetic(word: str) -> str:
       word = transformation(word)
 
     result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
+    print('Використані правила:')
+    for rule in rules_used:
+      print(rule)
+    rules_used = []
     return f'[{result}]'
   else:
     return 'ПОМИЛКА: У слові не визначено наголос'

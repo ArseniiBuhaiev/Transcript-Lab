@@ -118,4 +118,3 @@ radio_1.place(x=45, y=270, anchor=W)
 radio_2.place(x=45, y=310, anchor=W)
 
 ui.mainloop()
-
