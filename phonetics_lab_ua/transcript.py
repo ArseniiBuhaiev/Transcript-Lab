@@ -62,15 +62,14 @@ def jotted_letters(word: str) -> str:
   result = re.sub(r"й", "j", word)
 
   while bool(re.findall("[яюєї]", result)):
-    step_one = re.sub(r"([ауоеіиїєяюьj']\u0301?|\b)([яюєї])", two_sounds, result)
-    result = re.sub(r"([цкнгшзхфвпрлджчсмтбґj])([яюєї])", one_sound, step_one)
+    to_sound = re.sub(r"([ауоеіиїєяюьj']\u0301?|\b)([яюєї])", two_sounds, result)
+    result = re.sub(r"([цкнгшзхфвпрлджчсмтбґj])([яюєї])", one_sound, to_sound)
 
   if result != word:
     rules_used.append('-Перетворення йотованих літер')
 
   return result
 
-# Функція заміни "в" та "й" на відповідні вокалізовані приголосні
 def vocalised_consonants(word: str) -> str:
   """
   Позначає вокалізацію [в] та [j] після голосного/на початку слова перед приголосним/у кінці слова.\n
@@ -98,7 +97,6 @@ def vocalised_consonants(word: str) -> str:
 
   return result
 
-# Функція назалізації голосного
 def nasalisation(word: str) -> str:
   """
   Позначає назалізацію голосних в оточенні носових приголосних.\n
@@ -129,7 +127,6 @@ def nasalisation(word: str) -> str:
   
   return nasalisation
 
-# Функція Щ, дж, дз
 def letters_to_sounds(word: str) -> str:
   """
   Трансформує Щ, ДЖ, та ДЗ у відповідні звуки.\n
@@ -155,11 +152,10 @@ def letters_to_sounds(word: str) -> str:
   
   return dz
 
-# Функція палаталізації приголосного
 def palatalisation(word: str) -> str:
   """
-  Позначає палаталізацію приголосних.\n
-  Marks palatalised consonants.
+  Позначає (напів-)палаталізацію приголосних.\n
+  Marks (half)palatalised consonants.
 
   Args:
     word (str): Word with palatalised consonants
@@ -195,7 +191,6 @@ def palatalisation(word: str) -> str:
 
   return half_palatalize
 
-# Функція додавання огублення звуків
 def labialisation(word: str) -> str:
   """
   Позначає лабіалізацію приголосних.\n
@@ -222,7 +217,6 @@ def labialisation(word: str) -> str:
 
   return result
 
-# Функція додавання знака подовження
 def sound_lengthening(word: str) -> str:
   """
   Позначає подовження приголосних.\n
@@ -248,7 +242,6 @@ def sound_lengthening(word: str) -> str:
 
   return lengthening
 
-# Функція додавання знака і-подібної артикуляції
 def i_type_articulation(word: str) -> str:
   """
   Позначає зміну артикуляції голосних на і-подібну.\n
@@ -281,7 +274,6 @@ def i_type_articulation(word: str) -> str:
 
   return progressive
 
-# Функція редукції ненаголошених
 def vowels_reduction(word: str) -> str:
   """
   Позначає редукцію ненаголошених голосних.\n
@@ -316,7 +308,6 @@ def vowels_reduction(word: str) -> str:
 
   return reduction
 
-# Функція наближення о до у
 def o_assimilation(word: str) -> str:
   """
   Позначає гармонійну асиміляцію [о].\n
@@ -342,7 +333,6 @@ def o_assimilation(word: str) -> str:
 
   return result
 
-# Функція асиміляції за дзвінкістю
 def voice_assimilation(word: str) -> str:
   """
   Асимілює приголосні за дзвінкістю.\n
@@ -357,19 +347,19 @@ def voice_assimilation(word: str) -> str:
   global rules_used
   def replace_match(match):
     voiceless = match.group(1)
-    voiced = match.group(2)
-    result = voice_assimilation_map[voiceless] + voiced
+    palatalisation = match.group(2)
+    voiced = match.group(3)
+    result = f"{voice_assimilation_map[voiceless]}{palatalisation}{voiced}"
 
     return result
   
-  result = re.sub(r"([цкшхпчст])([гзджбґ]|д͡з|д͡ж)", replace_match, word)
+  result = re.sub(r"([цкшхпчст])('?)([гзджбґ]|д͡з|д͡ж)", replace_match, word)
 
   if result != word:
     rules_used.append('-Асиміляція за дзвінкістю')
 
   return result
 
-# Функція обов'язкової асиміляції за глухістю
 def voicelessness_assimilation(word: str) -> str:
   """
   Асимілює приголосні за глухістю.\n
@@ -393,7 +383,7 @@ def voicelessness_assimilation(word: str) -> str:
 
     return f'{preposition}{stress}х{postposition}'
   
-  is_exception = re.sub(r"(ле|в°?о|(?:кߴ|н')і|д'°о)(\u0301?)г(к|т)", exceptions, word)
+  is_exception = re.sub(r"(ле|в°?о|(?:кߴі|н'ĩ)|д'°о)(\u0301?)г(к|т)", exceptions, word)
   obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
 
   if is_exception != word:
@@ -403,7 +393,6 @@ def voicelessness_assimilation(word: str) -> str:
   
   return obligatory
 
-# Функція асиміляції за способом творення
 def WOP_assimilation(word: str) -> str:
   """
   Асимілює приголосні за місцем творення, стягує за потреби.\n
@@ -437,7 +426,6 @@ def WOP_assimilation(word: str) -> str:
 
   return progressive_in_non_verbs
 
-# Функція асиміляції за місцем та способом творення
 def POPWOP_assimilation(word: str) -> str:
   """
   Асимілює приголосні за місцем та способом творення.\n
@@ -467,7 +455,6 @@ def POPWOP_assimilation(word: str) -> str:
 
   return step3
 
-# Функція асиміляції за м'якістю
 def softness_assimilation(word: str) -> str:
   """
   Асимілює приголосні за м'якістю.\n
@@ -483,22 +470,20 @@ def softness_assimilation(word: str) -> str:
   def replace_match(match):
     target = match.group(1)
     palatalized = match.group(2)
-    sign = match.group(3)
-    result = f"{target}'{palatalized}{sign}"
+    result = f"{target}'{palatalized}'"
 
     return result
 
-  obligatory = re.sub(r"([дтн])([дтн])(['])", replace_match, word)
-  optional = re.sub(r"([зсц]|д͡з)([цкнгґшзхфвпрлджчсмтб]|д͡з|д͡ж)(['ߴ])", replace_match, obligatory)
+  result = word
 
-  if obligatory != word:
-    rules_used.append('-Асиміляція за м\'якістю обов\'язкова')
-  elif optional != obligatory:
-    rules_used.append('-Асиміляція за м\'якістю, факультативна')
+  while re.findall(r"([дтнлзсц]|д͡з)(?!')([дтнлзсц]|д͡з)'", result):
+    result = re.sub(r"([дтнлзсц]|д͡з)(?!')([дтнлзсц]|д͡з)'", replace_match, result)
+
+  if result != word:
+    rules_used.append('-Асиміляція за м\'якістю')
   
-  return optional
+  return result
 
-# Функція спрощення приголосних
 def consonant_reduction(word: str) -> str:
   """
   Спрощує приголосні у групах приголосних, стягує за потреби.\n
@@ -524,15 +509,16 @@ def consonant_reduction(word: str) -> str:
     return word
   else:
     reduction = re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
-    if reduction != word:
+    result = reduction
+    if reduction != word and word != 'шߴістсо́т':
       rules_used.append('-Редукція приголосних')
       contraction = re.sub(r"сс", "с", reduction)
       if contraction != reduction:
+        result = contraction
         rules_used.append('-Редукція приголосних, стягнення приголосних')
 
-    return reduction
+    return result
 
-# Функція перевірки правильності введеного слова
 def check_input(word: str) -> str:
   """
   Перевіряє вхідні дані на недозволені символи, очищує від зайвих символів, приводить до нижнього регістру.\n
@@ -546,17 +532,19 @@ def check_input(word: str) -> str:
   """
   word_cleared = ((word.strip()).casefold()).replace("-", "")
   char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;!+=\$№#@\"&]", word_cleared)
+  with_preposition = word_cleared.startswith('з ') or word_cleared.startswith('над ') or word_cleared.startswith('від ')
   if char_check:
     return "ПОМИЛКА: Виявлено невідомі символи"
-  elif " " in word_cleared:
+  elif " " in word_cleared and not with_preposition:
     return "ПОМИЛКА: Було введено більше одного слова"
+  elif with_preposition:
+    word_cleared = f"{word_cleared.split()[0]}{stress(word_cleared.split()[1])}"
   for i, char in enumerate(word_cleared):
     if char == "%" and word_cleared[i-1] not in vowels:
       return "ПОМИЛКА: Приголосний позначено як наголошений"
   else:
     return stress(word_cleared)
 
-# Функція транскрибування слова
 def phonetic(word: str) -> str:
   """
   Фонетично транскрибує слово за набором правил.\n
@@ -570,7 +558,9 @@ def phonetic(word: str) -> str:
   """
   global rules_used
   word = check_input(word)
-  if word == "":
+  if 'ПОМИЛКА' in word:
+    return word
+  elif word == "":
     return ""
   elif '\u0301' in word:
     transformations = (
