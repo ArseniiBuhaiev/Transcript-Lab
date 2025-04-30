@@ -39,8 +39,7 @@ def jotted_letters(word: str) -> str:
 
   Returns:
     str: Word with jotted letters transformed to sounds
-  """
-  global rules_used
+  """  
   def two_sounds(match):
     preposition = match.group(1)
     if preposition == "'":
@@ -64,10 +63,7 @@ def jotted_letters(word: str) -> str:
   while bool(re.findall("[яюєї]", result)):
     to_sound = re.sub(r"([ауоеіиїєяюьj']\u0301?|\b)([яюєї])", two_sounds, result)
     result = re.sub(r"([цкнгшзхфвпрлджчсмтбґj])([яюєї])", one_sound, to_sound)
-
-  if result != word:
-    rules_used.append('-Перетворення йотованих літер')
-
+  
   return result
 
 def vocalised_consonants(word: str) -> str:
@@ -81,7 +77,6 @@ def vocalised_consonants(word: str) -> str:
   Returns:
     str: Word with vocalized consonants
   """
-  global rules_used
   def replace(match):
     vowel = match.group(1)
     target = match.group(2)
@@ -91,9 +86,6 @@ def vocalised_consonants(word: str) -> str:
     return result
   
   result = re.sub(r"([ауоеіиїєяю']\u0301?|\b)([вj])([цкнгшзхфвпрлджчсмтбґj]|\b)", replace, word)
-  
-  if result != word:
-    rules_used.append('-Вокалізація приголосних')
 
   return result
 
@@ -108,7 +100,6 @@ def nasalisation(word: str) -> str:
   Returns:
     str: Word with marked nasalisation
   """
-  global rules_used
   def replace_match(match):
     preposition = match.group(1)
     stress = match.group(2)
@@ -121,9 +112,6 @@ def nasalisation(word: str) -> str:
       return f"{preposition}{stress}{nasal}{postposition}"
 
   nasalisation = re.sub(r"([аоуеіи]?)(\u0301?)([нм]'?)([аоуеіи]?)", replace_match, word)
-  
-  if nasalisation != word:
-    rules_used.append('-Назалізація')
   
   return nasalisation
 
@@ -138,19 +126,14 @@ def letters_to_sounds(word: str) -> str:
   Returns:
     str: Word with Щ, ДЖ, ДЗ transformed to sounds
   """
-  global rules_used
-  shch = re.sub(r"щ", "шч", word)
-  dzh = re.sub(r"дж", "д͡ж", shch)
-  dz = re.sub(r"дз", "д͡з", dzh)
-
-  if shch != word:
-    rules_used.append('-Перетворення щ на [шч]')
-  if dzh != word:
-    rules_used.append('-Перетворення дж на [д͡ж]')
-  if dz != word:
-    rules_used.append('-Перетворення дз на [д͡з]')
+  def replace(match):
+    letter = match.group(1)
+    result = conversion_map[letter]
+    return result
   
-  return dz
+  convert = re.sub(r"(щ|дж|дз)", replace, word)
+  
+  return convert
 
 def palatalisation(word: str) -> str:
   """
@@ -163,7 +146,6 @@ def palatalisation(word: str) -> str:
   Returns:
     str: Word with marked palatalised consonants
   """
-  global rules_used
   def replace_soft(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -184,11 +166,6 @@ def palatalisation(word: str) -> str:
   palatalize = re.sub(r"([дтзсцлнр])([ьіĩ])", replace_soft, word)
   half_palatalize = re.sub(r"([бпвмфґгкхшчж])([ьіĩ])", replace_half_soft, palatalize)
 
-  if palatalize != word:
-    rules_used.append('-Палаталізація приголосних')
-  if half_palatalize != word and half_palatalize != palatalize:
-    rules_used.append('-Напівпалаталізація приголосних')
-
   return half_palatalize
 
 def labialisation(word: str) -> str:
@@ -202,7 +179,6 @@ def labialisation(word: str) -> str:
   Returns:
     str: Word with marked labialised consonants
   """
-  global rules_used
   def replace(match):
     target = match.group(1)
     palatalisation = match.group(2)
@@ -211,9 +187,6 @@ def labialisation(word: str) -> str:
     return result
 
   result = re.sub(r"([бпвмфґкхшчжгдтзсцлнрj])(['ߴ]?)([оõуỹ])", replace, word)
-
-  if result != word:
-    rules_used.append('-Лабіалізація приголосних')
 
   return result
 
@@ -228,7 +201,6 @@ def sound_lengthening(word: str) -> str:
   Returns:
     str: Word with marked legthened consonants
   """
-  global rules_used
   def replace(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -236,9 +208,6 @@ def sound_lengthening(word: str) -> str:
     return result
 
   lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|j°?j|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
-
-  if lengthening != word:
-    rules_used.append('-Подовження приголосних')
 
   return lengthening
 
@@ -253,7 +222,6 @@ def i_type_articulation(word: str) -> str:
   Returns:
     str: Word with marked legthened consonants
   """
-  global rules_used
   def replace_regressive(match):
     target = match.group(1)
     stress = match.group(2)
@@ -269,9 +237,6 @@ def i_type_articulation(word: str) -> str:
   regressive = re.sub(r"([аоуеãõỹẽ])(\u0301?)(j|\w'|д͡з')", replace_regressive, word)
   progressive = re.sub(r"([j'][:°]*)([аоуеãõỹẽ])", replace_progressive, regressive)
 
-  if regressive != word or progressive != word:
-    rules_used.append('-і-подібна артикуляція голосних')
-
   return progressive
 
 def vowels_reduction(word: str) -> str:
@@ -285,7 +250,6 @@ def vowels_reduction(word: str) -> str:
   Returns:
     str: Word with marked unstressed vowels reduction
   """
-  global rules_used
   def e_to_y(match):
     target = match.group(1)
     result = f"{target}ᴻ"
@@ -303,9 +267,6 @@ def vowels_reduction(word: str) -> str:
   reduction = re.sub(r"·([еẽ])ᴻ·", e_to_i, reduction)
   reduction = re.sub(r"([иũ])(?!\u0301)", y_to_e, reduction)
 
-  if reduction != word:
-    rules_used.append('-Редукція ненаголошених голосних')
-
   return reduction
 
 def o_assimilation(word: str) -> str:
@@ -319,7 +280,6 @@ def o_assimilation(word: str) -> str:
   Returns:
     str: Word with marked harmonic assimilation
   """
-  global rules_used
   def replace(match):
     target = match.group(1)
     postposition = match.group(2)
@@ -327,9 +287,6 @@ def o_assimilation(word: str) -> str:
     return result
 
   result = re.sub(r"([оõ])((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
-
-  if result != word:
-    rules_used.append('-Гармонійна асиміляція')
 
   return result
 
@@ -344,7 +301,6 @@ def voice_assimilation(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def replace_match(match):
     voiceless = match.group(1)
     palatalisation = match.group(2)
@@ -353,10 +309,7 @@ def voice_assimilation(word: str) -> str:
 
     return result
   
-  result = re.sub(r"([цкшхпчст])('?)([гзджбґ]|д͡з|д͡ж)", replace_match, word)
-
-  if result != word:
-    rules_used.append('-Асиміляція за дзвінкістю')
+  result = re.sub(r"([цкшхпчст])('?)([гзджбґ])", replace_match, word)
 
   return result
 
@@ -371,7 +324,6 @@ def voicelessness_assimilation(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def replace_match(match):
     voiceless = match.group(2)
     return "с" + voiceless
@@ -386,11 +338,6 @@ def voicelessness_assimilation(word: str) -> str:
   is_exception = re.sub(r"(ле|в°?о|(?:кߴі|н'[ĩі])|д'°?о)(\u0301?)г(к|т)", exceptions, word)
   obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
 
-  if is_exception != word:
-    rules_used.append('-Асиміляція за глухістю (слово-виняток)')
-  elif obligatory != word:
-    rules_used.append('-Асиміляція за глухістю')
-  
   return obligatory
 
 def WOP_assimilation(word: str) -> str:
@@ -404,7 +351,6 @@ def WOP_assimilation(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def replace_regressive(match):
     target = match.group(1)
     misc = match.group(2)
@@ -416,13 +362,6 @@ def WOP_assimilation(word: str) -> str:
   in_verbs = re.sub(r"т'с'а$", "ц':а", word)
   regressive = re.sub(r"([дт])('?)([зсц]|д͡з)", replace_regressive, in_verbs)
   progressive_in_non_verbs = re.sub(r"цс'", "ц'", regressive)
-
-  if in_verbs != word:
-    rules_used.append('-Регресивно-прогресивна асиміляція за способом творення без стягнення')
-  elif regressive != in_verbs and regressive != word:
-    rules_used.append('-Асиміляція за способом творення')
-  elif progressive_in_non_verbs != word:
-    rules_used.append('-Регресивно-прогресивна асиміляція за способом творення зі стягненням')
 
   return progressive_in_non_verbs
 
@@ -437,7 +376,6 @@ def POPWOP_assimilation(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def replace_match(match):
     target = match.group(1)
     misc = match.group(2)
@@ -449,9 +387,6 @@ def POPWOP_assimilation(word: str) -> str:
   step1 = re.sub(r"([дт])('?)([жшч]|д͡ж)", replace_match, word)
   step2 = re.sub(r"([зсц]|д͡з)('?)([жшч]|д͡ж)", replace_match, step1)
   step3 = re.sub(r"([жшч]|д͡ж)('?)([зсц]|д͡з)", replace_match, step2)
-
-  if step1 != word and step2 != word and step3 != word:
-    rules_used.append('-Асиміляція за місцем та способом творення')
 
   return step3
 
@@ -466,7 +401,6 @@ def softness_assimilation(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def replace_match(match):
     target = match.group(1)
     palatalized = match.group(2)
@@ -476,11 +410,8 @@ def softness_assimilation(word: str) -> str:
 
   result = word
 
-  while re.findall(r"([дтнлзсц]|д͡з)(?!')([дтнлзсц]|д͡з)'", result):
-    result = re.sub(r"([дтнлзсц]|д͡з)(?!')([дтнлзсц]|д͡з)'", replace_match, result)
-
-  if result != word:
-    rules_used.append('-Асиміляція за м\'якістю')
+  while re.findall(r"([дтнлзсц]|д͡з)([дтнлзсц]|д͡з)'", result):
+    result = re.sub(r"([дтнлзсц]|д͡з)([дтнлзсц]|д͡з)'", replace_match, result)
   
   return result
 
@@ -495,7 +426,6 @@ def consonant_reduction(word: str) -> str:
   Returns:
     str: Word with consonants assimilated
   """
-  global rules_used
   def obligatory_replace(match):
     prev = match.group(1)
     next = match.group(2)
@@ -505,17 +435,14 @@ def consonant_reduction(word: str) -> str:
     return result
 
   if re.findall(r'запj·а́стн|хвастн', word):
-    rules_used.append('-Виняток, редукція приголосних')
     return word
   else:
     reduction = re.sub(r"(с|н)т(ч|ц'|н|д|с)", obligatory_replace, word)
     result = reduction
     if reduction != word and word != 'шߴістсо́т':
-      rules_used.append('-Редукція приголосних')
       contraction = re.sub(r"сс", "с", reduction)
       if contraction != reduction:
         result = contraction
-        rules_used.append('-Редукція приголосних, стягнення приголосних')
 
     return result
 
@@ -540,7 +467,6 @@ def check_input(word: str) -> str:
     if char == "%" and word_cleared[i-1] not in vowels:
       return "ПОМИЛКА: Приголосний позначено як наголошений"
   else:
-    print(word_cleared)
     return stress(word_cleared)
 
 def phonetic(word: str) -> str:
@@ -584,9 +510,6 @@ def phonetic(word: str) -> str:
       word = transformation(word)
 
     result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
-    for rule in rules_used:
-      print(rule)
-    rules_used = []
     return f'[{result}]'
   else:
     return 'ПОМИЛКА: У слові не визначено наголос'
