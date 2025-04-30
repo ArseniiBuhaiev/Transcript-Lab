@@ -85,7 +85,7 @@ def vocalised_consonants(word: str) -> str:
     result = f"{vowel}{vocalized_map[target]}{consonant}"
     return result
   
-  result = re.sub(r"([ауоеіиїєяю']\u0301?|\b)([вj])([цкнгшзхфвпрлджчсмтбґj]|\b)", replace, word)
+  result = re.sub(r"([ауоеіиїєяю]\u0301?|\b)([вj])([цкнгшзхфвпрлджчсмтбґj]|\b)", replace, word)
 
   return result
 
@@ -207,7 +207,7 @@ def sound_lengthening(word: str) -> str:
     result = f"{target[:len(target)//2]}{postposition}:"
     return result
 
-  lengthening = re.sub(r"(б[ߴ°]?б|п[ߴ°]?п|в[ߴ°]?в|м[ߴ°]?м|ф[ߴ°]?ф|ґ[ߴ°]?ґ|к[ߴ°]?к|х[ߴ°]?х|ш[ߴ°]?ш|ч[ߴ°]?ч|(?<!д͡)ж[ߴ°]?ж|г[ߴ°]?г|д['°]?д|т['°]?т|(?<!д͡)з['°]?з|с['°]?с|ц['°]?ц|л['°]?л|н['°]?н|р['°]?р|j°?j|д͡ж[ߴ°]?д͡ж|д͡з['°]?д͡з)([ߴ'°]*)", replace, word)
+  lengthening = re.sub(r"(бб|пп|вв|мм|фф|ґґ|кк|хх|шш|чч|(?<!д͡)жж|гг|д'?д|т'?т|(?<!д͡)з'?з|с'?с|ц'?ц|л'?л|н'?н|рр|jj|д͡жд͡ж|д͡зд͡з)([ߴ'°]*)", replace, word)
 
   return lengthening
 
@@ -286,7 +286,7 @@ def o_assimilation(word: str) -> str:
     result = f"{target}ʸ{postposition}"
     return result
 
-  result = re.sub(r"([оõ])((?:[^аоуеиі]+)(?:[уі]\u0301))", replace, word)
+  result = re.sub(r"([оõ])((?:[^аоуеиі]*)(?:[уі]\u0301))", replace, word)
 
   return result
 
@@ -526,7 +526,9 @@ def phonematic(word: str) -> str:
     str: Phonematic transcription of the word
   """
   word = check_input(word)
-  if word == "":
+  if 'ПОМИЛКА' in word:
+    return word
+  elif word == "":
     return ""
   elif '\u0301' in word:
     transformations = (
