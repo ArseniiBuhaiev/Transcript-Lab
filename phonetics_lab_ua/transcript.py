@@ -383,7 +383,7 @@ def voicelessness_assimilation(word: str) -> str:
 
     return f'{preposition}{stress}х{postposition}'
   
-  is_exception = re.sub(r"(ле|в°?о|(?:кߴі|н'ĩ)|д'°о)(\u0301?)г(к|т)", exceptions, word)
+  is_exception = re.sub(r"(ле|в°?о|(?:кߴі|н'[ĩі])|д'°?о)(\u0301?)г(к|т)", exceptions, word)
   obligatory = re.sub(r"^(з)([цкшхфпчст])", replace_match, is_exception)
 
   if is_exception != word:
@@ -532,17 +532,15 @@ def check_input(word: str) -> str:
   """
   word_cleared = ((word.strip()).casefold()).replace("-", "")
   char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;!+=\$№#@\"&]", word_cleared)
-  with_preposition = word_cleared.startswith('з ') or word_cleared.startswith('над ') or word_cleared.startswith('від ')
   if char_check:
     return "ПОМИЛКА: Виявлено невідомі символи"
-  elif " " in word_cleared and not with_preposition:
+  elif " " in word_cleared:
     return "ПОМИЛКА: Було введено більше одного слова"
-  elif with_preposition:
-    word_cleared = f"{word_cleared.split()[0]}{stress(word_cleared.split()[1])}"
   for i, char in enumerate(word_cleared):
     if char == "%" and word_cleared[i-1] not in vowels:
       return "ПОМИЛКА: Приголосний позначено як наголошений"
   else:
+    print(word_cleared)
     return stress(word_cleared)
 
 def phonetic(word: str) -> str:
@@ -586,7 +584,6 @@ def phonetic(word: str) -> str:
       word = transformation(word)
 
     result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
-    print('Використані правила:')
     for rule in rules_used:
       print(rule)
     rules_used = []
