@@ -10,3 +10,4 @@ tokenization.py
 /poetry.lock
 *.spec
 /approbation
+icon.ico
