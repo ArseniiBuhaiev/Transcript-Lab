@@ -76,7 +76,6 @@ def save():
 
 # Створення інтерфейсу та конфігурація вікна програми
 ui = Tk()
-ui.iconbitmap("ICON.ico")
 ui.title('Phonetics Lab UA')
 ui.configure(bg="#1e2838")
 ui.geometry("1100x350")
