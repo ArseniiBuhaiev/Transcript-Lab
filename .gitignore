@@ -10,5 +10,5 @@ tokenization.py
 /poetry.lock
 *.spec
 /approbation
-ICON.ico
+newICON.ico
 compile.bat
