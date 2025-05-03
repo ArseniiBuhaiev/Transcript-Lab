@@ -1,6 +1,7 @@
 from tkinter import *
 from customtkinter import *
 import os
+import sys
 import pyperclip
 from phonetics_lab_ua import phonetic
 from phonetics_lab_ua import phonematic
@@ -74,10 +75,19 @@ def save():
     if save_path:
         write_to_file(result, save_path)
 
+# Функція визначення шляху до іконки
+def get_icon_path():
+    if getattr(sys, "frozen", False):
+        icon_path = os.path.join(sys._MEIPASS, "newICON.ico")
+    else:
+        icon_path = "newICON.ico"
+    return icon_path
+
 # Створення інтерфейсу та конфігурація вікна програми
 ui = Tk()
 ui.title('Phonetics Lab UA')
 ui.configure(bg="#1e2838")
+ui.iconbitmap(get_icon_path())
 ui.geometry("1100x350")
 ui.resizable(width=False, height=False)
 
