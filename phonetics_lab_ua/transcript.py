@@ -1,33 +1,6 @@
 import re
 from .config import *
-from ukrainian_word_stress import Stressifier
-
-stressify = Stressifier(stress_symbol='\u0301')
-
-def stress(word: str) -> str:
-  """
-  Позначає наголошений у слові вручну, якщо користувач уточнив, або автоматично.\n
-  Marks the stressed vowel in a word manually, if user has specified so, or automatically.
-  
-  Args:
-    word (str): Word without a stress mark
-
-  Returns:
-    str: Word with stressed vowel marked
-  """
-  vowel_count = 0
-  for char in word:
-    if char in vowels:
-      vowel_count += 1
-  
-  if '%' in word:
-    return re.sub(r"%", "\u0301", word)
-  elif vowel_count == 1:
-    for char in word:
-      if char in vowels:
-        return word.replace(char, f'{char}\u0301')
-  else:
-    return stressify(word)
+from .tokenize import *
 
 def jotted_letters(word: str) -> str:
   """
@@ -457,17 +430,15 @@ def check_input(word: str) -> str:
   Returns:
     str: Clean, lowercased word with a marked stressed vowel
   """
-  word_cleared = ((word.strip()).casefold()).replace("-", "")
-  char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm,\.;!+=\$№#@\"&]", word_cleared)
+  word_cleared = re.sub(r"(\w\-\w)", lambda match: (match.group(1)).replace("-", ""), (word.strip()).casefold())
+  char_check = re.findall(r"[qwertyuiopasdfghjklzxcvbnm+=\$№#@\"&]", word_cleared)
   if char_check:
-    return "ПОМИЛКА: Виявлено невідомі символи"
-  elif " " in word_cleared:
-    return "ПОМИЛКА: Було введено більше одного слова"
+    return f"ПОМИЛКА: Виявлено невідомі символи у слові {word_cleared}"
   for i, char in enumerate(word_cleared):
     if char == "%" and word_cleared[i-1] not in vowels:
-      return "ПОМИЛКА: Приголосний позначено як наголошений"
+      return f"ПОМИЛКА: У слові {word_cleared} приголосний позначено як наголошений"
   else:
-    return stress(word_cleared)
+    return word_cleared
 
 def phonetic(word: str) -> str:
   """
@@ -480,40 +451,44 @@ def phonetic(word: str) -> str:
   Returns:
     str: Phonetic transcription of the word
   """
-  global rules_used
   word = check_input(word)
   if 'ПОМИЛКА' in word:
     return word
   elif word == "":
     return ""
-  elif '\u0301' in word:
-    transformations = (
-      jotted_letters,
-      vocalised_consonants,
-      nasalisation,
-      letters_to_sounds,
-      palatalisation,
-      consonant_reduction,
-      labialisation,
-      voice_assimilation,
-      voicelessness_assimilation,
-      WOP_assimilation,
-      POPWOP_assimilation,
-      softness_assimilation,
-      sound_lengthening,
-      i_type_articulation,
-      o_assimilation,
-      vowels_reduction
-    )
-
-    for transformation in transformations:
-      word = transformation(word)
-
-    result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
-    return f'[{result}]'
-  else:
-    return 'ПОМИЛКА: У слові не визначено наголос'
   
+  transformations = (
+    jotted_letters,
+    vocalised_consonants,
+    nasalisation,
+    letters_to_sounds,
+    palatalisation,
+    consonant_reduction,
+    labialisation,
+    voice_assimilation,
+    voicelessness_assimilation,
+    WOP_assimilation,
+    POPWOP_assimilation,
+    softness_assimilation,
+    sound_lengthening,
+    i_type_articulation,
+    o_assimilation,
+    vowels_reduction
+  )
+
+  for transformation in transformations:
+    word = transformation(word)
+
+  result = word.replace('ũ', 'и\u0303').replace('і\u0301', 'í')
+  return f'{result}'
+
+def phonetic_text(text: str) -> str:
+    transcription = ""
+    token_list = tokenize_phonetic_words(text)
+    for token in token_list:
+        transcription += phonetic(token) + " "
+    return f"[{transcription[:-1]}]"
+
 def phonematic(word: str) -> str:
   """
   Фонематично транскрибує слово за набором правил.\n
@@ -530,29 +505,33 @@ def phonematic(word: str) -> str:
     return word
   elif word == "":
     return ""
-  elif '\u0301' in word:
-    transformations = (
-      jotted_letters,
-      vocalised_consonants,
-      letters_to_sounds,
-      palatalisation,
-      consonant_reduction,
-      voice_assimilation,
-      voicelessness_assimilation,
-      WOP_assimilation,
-      POPWOP_assimilation,
-      softness_assimilation,
-      sound_lengthening,
-      o_assimilation,
-      i_type_articulation,
-      vowels_reduction
-    )
 
-    for transformation in transformations:
-      word = transformation(word)
+  transformations = (
+    jotted_letters,
+    vocalised_consonants,
+    letters_to_sounds,
+    palatalisation,
+    consonant_reduction,
+    voice_assimilation,
+    voicelessness_assimilation,
+    WOP_assimilation,
+    POPWOP_assimilation,
+    softness_assimilation,
+    sound_lengthening,
+    o_assimilation,
+    i_type_articulation,
+    vowels_reduction
+  )
 
-    result = word.replace('j', 'й').replace('·', '')
-    return f'/{result}/'
+  for transformation in transformations:
+    word = transformation(word)
 
-  else:
-    return 'ПОМИЛКА: У слові не визначено наголос'
+  result = word.replace('j', 'й').replace('·', '')
+  return f'{result}'
+  
+def phonematic_text(text: str) -> str:
+    transcription = ""
+    token_list = tokenize_phonetic_words(text)
+    for token in token_list:
+        transcription += phonematic(token) + " "
+    return f"/{transcription[:-1]}/"
