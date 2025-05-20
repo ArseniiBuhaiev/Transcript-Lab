@@ -1,8 +1,10 @@
 from customtkinter import *
+import webbrowser
 import json
 import os
 import sys
 import pyperclip
+from PIL import Image
 from phonetics_lab_ua import phonetic_text
 from phonetics_lab_ua import phonematic_text
 
@@ -117,7 +119,7 @@ def clear():
 app = CTk()
 app.title('Phonetics Lab UA')
 app.iconbitmap(get_icon_path())
-app.geometry("1353x500")
+app.geometry("1150x500")
 app.resizable(width=False, height=False)
 set_default_color_theme("themes/rime.json")
 app.grid_columnconfigure(0, weight=1)
@@ -214,38 +216,114 @@ def settings_ui():
     theme_frame.grid_propagate(False)
     theme_frame.configure(width = 1050, height=120)
     theme_frame.grid(row=0, column=0, padx=25, pady=25)
-    theme_label.grid(row=0, column=0, padx=10, pady=10)
+    theme_label.grid(row=0, column=0, padx=10, pady=5)
     theme_radio1.grid(row=1, column=0, padx=50, sticky="w")
     theme_radio2.grid(row=2, column=0, padx=50, sticky="w")
 
     scaling_frame.grid_propagate(False)
     scaling_frame.configure(width = 1050, height=120)
     scaling_frame.grid(row=1, column=0, padx=25, pady=25)
-    scaling_label.grid(row=0, column=0, padx=10, pady=10)
-    scaling_menu.grid(row=1, column=0, padx=50, pady=10, sticky="w")
+    scaling_label.grid(row=0, column=0, padx=10, pady=5)
+    scaling_menu.grid(row=1, column=0, padx=50, sticky="w")
+
+    links_frame.grid(row=2, column=0, pady=110, sticky="e")
 
 def placeholder_ui():
     clear()
     x = CTkLabel(main_area, text="This is a placeholder UI! The app is still in development")
     x.grid(row=0, column=0)
 
+# Виклик контекстного меню
+sidebar_offset = -155
+
+def menu_in():
+    global sidebar_offset
+    if sidebar_offset < 0:
+        sidebar_offset += 5
+        sidebar.place(x=sidebar_offset, y=0)
+        app.after(3, menu_in)
+
+def menu_out():
+    global sidebar_offset
+    if sidebar_offset > -155:
+        sidebar_offset -= 5
+        sidebar.place(x=sidebar_offset, y=0)
+        app.after(3, menu_out)
+
+def on_click(event):
+    if app.winfo_pointerx() - app.winfo_rootx() > 200 * settings_json["scale"]:
+        show_menu()
+        app.unbind("<Button-1>")
+
+def show_menu():
+    if sidebar.winfo_x() < 0:
+        app.bind("<Button-1>", on_click)
+        sidebar_button.pack_forget()
+        text_short.pack_forget()
+        audio_short.pack_forget()
+        analysis_short.pack_forget()
+        settings_short.pack_forget()
+        text.pack()
+        audio.pack()
+        analysis.pack()
+        settings.pack(side="bottom")
+        menu_in()
+    else:
+        text.pack_forget()
+        audio.pack_forget()
+        analysis.pack_forget()
+        settings.pack_forget()
+        sidebar_button.pack(side="top", anchor="e")
+        text_short.pack(side="top", anchor="e")
+        audio_short.pack(side="top", anchor="e")
+        analysis_short.pack(side="top", anchor="e")
+        settings_short.pack(side="bottom", anchor="e")
+        menu_out()
+        
 # Створення списку для вибору функції
-text = CTkButton(sidebar, text="Транскрибування тексту", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=text_ui)
-audio = CTkButton(sidebar, text="Транскрибування аудіо", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
-analysis = CTkButton(sidebar, text="Аналіз транскрипції", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
-settings = CTkButton(sidebar, text="Налаштування", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=settings_ui)
+sidebar_button = CTkButton(sidebar, text="≡",  font=("Segoe UI", 40), width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=show_menu)
+
+text = CTkButton(sidebar, text="Тексти", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), text_ui()))
+text_short = CTkButton(sidebar, text="Aa", font=("Segoe UI", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=text_ui)
+
+audio = CTkButton(sidebar, text="Аудіо", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), placeholder_ui()))
+audio_short = CTkButton(sidebar, text="🔊", font=("Segoe UI Emoji", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
+
+analysis = CTkButton(sidebar, text="Аналіз", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), placeholder_ui()))
+analysis_short = CTkButton(sidebar, text="📋", font=("Segoe UI Emoji", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
+
+settings = CTkButton(sidebar, text="Налаштування", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), settings_ui()))
+settings_short = CTkButton(sidebar, text="⚙", font=("Segoe UI Emoji", 20), height=55, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=settings_ui)
 
 # Виклик результату по натисканню клавіші Enter та зміна його поведінки у вікні для вводу
 input_field.bind('<Return>', enter_behaviour)
 
+# Домашня сторінка
+links_frame = CTkFrame(main_area, fg_color="transparent")
+git_link = CTkButton(links_frame, text="GitHub", font=("Segoe UI", 15), command=lambda: webbrowser.open("https://github.com/ArseniiBuhaiev/phonetics-lab-UA"))
+uni_link = CTkButton(links_frame, text="Катедра УМ та ПЛ", font=("Segoe UI", 15), command=lambda: webbrowser.open("https://philology.knu.ua/struktura-if/kafedry/kafedra-ukr-movy-pryklad-linhvist/"))
+home_img = CTkImage(light_image=Image.open("assets/light_home.png"),
+                     dark_image=Image.open("assets/dark_home.png"),
+                     size=(907, 360))
+home_logo = CTkLabel(main_area, text="", image=home_img)
+
 # Розміщення елементів інтерфейсу
-sidebar.grid(row=0, column=0, sticky="nswe")
-text.pack()
-audio.pack()
-analysis.pack()
-settings.pack(side="bottom")
-main_area.grid(row=0, column=1, sticky="nswe")
+sidebar.place(x=-155, y=0)
+sidebar.pack_propagate(False)
+sidebar_button.pack(side="top", anchor="e")
+text_short.pack(side="top", anchor="e")
+audio_short.pack(side="top", anchor="e")
+analysis_short.pack(side="top", anchor="e")
+settings_short.pack(side="bottom", anchor="e")
+main_area.pack(side="right")
+main_area.lower(sidebar)
+
+def home_screen():
+    home_logo.grid(row=0, column=0, sticky = "e", padx=96, pady=30)
+    links_frame.grid(row=1, column=0, sticky="e", pady=30)
+    uni_link.grid(row=0, column=0, padx=10, pady=10)
+    git_link.grid(row=0, column=1, padx=10, pady=10)
 
 if __name__ == "__main__":
-    text_ui()
+    home_screen()
     app.mainloop()

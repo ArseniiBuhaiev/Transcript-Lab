@@ -65,5 +65,3 @@ def tokenize_phonetic_words(text: str) -> list:
             pass
 
     return token_list
-
-print(tokenize_phonetic_words("То що?"))
