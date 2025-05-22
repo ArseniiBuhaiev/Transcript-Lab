@@ -99,14 +99,14 @@ def letters_to_sounds(word: str) -> str:
   Returns:
     str: Word with Щ, ДЖ, ДЗ transformed to sounds
   """
-  def replace(match):
-    letter = match.group(1)
-    result = conversion_map[letter]
-    return result
+  segment = re.sub(r"((?:(?:по|с)?пі|(?:по)на|(?:ві|о)|пе?ре)д)([жз])",
+                   lambda match: f"{match.group(1)}/{match.group(2)}",
+                   word)
+  convert = re.sub(r"(щ|д[жз])",
+                   lambda match: conversion_map[match.group(1)],
+                   segment)
   
-  convert = re.sub(r"(щ|дж|дз)", replace, word)
-  
-  return convert
+  return convert.replace("/", "")
 
 def palatalisation(word: str) -> str:
   """
@@ -460,8 +460,8 @@ def phonetic(word: str) -> str:
   transformations = (
     jotted_letters,
     vocalised_consonants,
-    nasalisation,
     letters_to_sounds,
+    nasalisation,
     palatalisation,
     consonant_reduction,
     labialisation,
@@ -486,7 +486,10 @@ def phonetic_text(text: str) -> str:
     transcription = ""
     token_list = tokenize_phonetic_words(text)
     for token in token_list:
-        transcription += phonetic(token) + " "
+        if "|" in token:
+          transcription += token
+        else:
+          transcription += phonetic(token) + " "
     return f"[{transcription[:-1]}]"
 
 def phonematic(word: str) -> str:
@@ -501,7 +504,7 @@ def phonematic(word: str) -> str:
     str: Phonematic transcription of the word
   """
   word = check_input(word)
-  if 'ПОМИЛКА' in word:
+  if 'ПОМИЛКА' in word or "|" in word:
     return word
   elif word == "":
     return ""

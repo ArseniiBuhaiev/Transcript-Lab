@@ -26,10 +26,10 @@ def read_from_file(fp):
 # Функція зміни поведінки клавіші Enter
 def enter_behaviour(event):
     if event.state & (0x0001 | 0x0004):
-        return
-    else:
         transcribe()
         return 'break'
+    else:
+        return
 
 # Функція транскрибування слова
 def transcribe():
@@ -127,36 +127,114 @@ app.grid_columnconfigure(1, weight=3)
 apply_settings()
 
 # Створення елементів інтерфейсу (панель, основна зона)
-sidebar = CTkFrame(app, height=500, corner_radius=0)
+sidebar = CTkFrame(app,
+                   height=500,
+                   corner_radius=0
+                   )
 sidebar.grid_propagate(False)
-main_area = CTkFrame(app, width=1100, height=500, fg_color="transparent")
+main_area = CTkFrame(app,
+                     width=1100,
+                     height=500,
+                     fg_color="transparent"
+                     )
 main_area.grid_propagate(False)
 
 # Створення елементів інтерфейсу транскрибування тексту
 input_frame = CTkFrame(main_area, fg_color="transparent")
-input_label = CTkLabel(input_frame, text="ТЕКСТ ДЛЯ ТРАНСКРИБУВАННЯ:", font=('Segoe UI', 25))
-input_field = CTkTextbox(input_frame, font=('Cambria', 22), wrap="word", corner_radius=20, border_color=["#b9c4c9", "#3e3e3e"], border_width=2, width=500, height=260)
-load_button = CTkButton(input_frame, text="ЗАВАНТАЖИТИ З ФАЙЛУ .txt", font=("Segoe UI", 20), height=50, width=500, corner_radius=50, command=load)
+input_label = CTkLabel(input_frame,
+                       text="ТЕКСТ ДЛЯ ТРАНСКРИБУВАННЯ:",
+                       font=('Segoe UI', 25)
+                       )
+input_field = CTkTextbox(input_frame,
+                         font=('Cambria', 22),
+                         wrap="word", corner_radius=20,
+                         border_color=["#b9c4c9", "#3e3e3e"],
+                         border_width=2,
+                         width=500,
+                         height=260
+                         )
+load_button = CTkButton(input_frame,
+                        text="ЗАВАНТАЖИТИ З ФАЙЛУ .txt",
+                        font=("Segoe UI", 20),
+                        height=50, width=500,
+                        corner_radius=50,
+                        command=load
+                        )
 
 type_selected = IntVar()
 type_selected.set(0)
 type_frame = CTkFrame(input_frame, fg_color="transparent")
-radio_label = CTkLabel(type_frame, text="Оберіть тип транскрипції:", font=('Segoe UI', 25))
-radio_1 = CTkRadioButton(type_frame, text="Фонетична", font=("Segoe UI", 20), variable=type_selected, value=0, command=transcribe)
-radio_2 = CTkRadioButton(type_frame, text="Фонематична", font=("Segoe UI", 20), variable=type_selected, value=1, command=transcribe)
+radio_label = CTkLabel(type_frame,
+                       text="Оберіть тип транскрипції:",
+                       font=('Segoe UI', 25)
+                       )
+radio_1 = CTkRadioButton(type_frame,
+                         text="Фонетична",
+                         font=("Segoe UI", 20),
+                         variable=type_selected,
+                         value=0,
+                         command=transcribe
+                         )
+radio_2 = CTkRadioButton(type_frame,
+                         text="Фонематична",
+                         font=("Segoe UI", 20),
+                         variable=type_selected,
+                         value=1,
+                         command=transcribe
+                         )
 
 output_frame = CTkFrame(main_area, fg_color="transparent")
-output_label = CTkLabel(output_frame, text="ТРАНСКРИБОВАНИЙ ТЕКСТ:", font=('Segoe UI', 25))
-output_field = CTkTextbox(output_frame, font=('Cambria', 22), wrap="word", corner_radius=20, border_color=["#b9c4c9", "#3e3e3e"], border_width=2, width=500, height=260)
+output_label = CTkLabel(output_frame,
+                        text="ТРАНСКРИБОВАНИЙ ТЕКСТ:",
+                        font=('Segoe UI', 25)
+                        )
+output_field = CTkTextbox(output_frame,
+                          font=('Cambria', 22),
+                          wrap="word",
+                          corner_radius=20,
+                          border_color=["#b9c4c9", "#3e3e3e"],
+                          border_width=2,
+                          width=500,
+                          height=260
+                          )
 output_field.configure(state="disabled")
 
-transcribe_button = CTkButton(output_frame, text="ТРАНСКРИБУВАТИ", font=("Segoe UI", 20), height=50, width=500, corner_radius=50, command=transcribe)
-copy_button = CTkButton(output_frame, text="СКОПІЮВАТИ", font=("Segoe UI", 20), height=50, width=500, corner_radius=50, state="disabled", command=copy)
-save_button = CTkButton(output_frame, text="ЗБЕРЕГТИ В .txt", font=("Segoe UI", 20), height=50, width=500, corner_radius=50, state="disabled", command=save)
+transcribe_button = CTkButton(output_frame,
+                              text="ТРАНСКРИБУВАТИ",
+                              font=("Segoe UI", 20),
+                              height=50,
+                              width=500,
+                              corner_radius=50,
+                              command=transcribe
+                              )
+copy_button = CTkButton(output_frame,
+                        text="СКОПІЮВАТИ",
+                        font=("Segoe UI", 20),
+                        height=50,
+                        width=500,
+                        corner_radius=50,
+                        state="disabled",
+                        command=copy
+                        )
+save_button = CTkButton(output_frame,
+                        text="ЗБЕРЕГТИ В .txt",
+                        font=("Segoe UI", 20),
+                        height=50, width=500,
+                        corner_radius=50,
+                        state="disabled",
+                        command=save
+                        )
 
 # Створення елементів інтерфейсу налаштувань
-theme_frame = CTkFrame(main_area, border_color=["#b9c4c9", "#3e3e3e"], border_width=2, fg_color="transparent")
-theme_label = CTkLabel(theme_frame, text="Тема застосунку: ", font=("Segoe UI", 25))
+theme_frame = CTkFrame(main_area,
+                       border_color=["#b9c4c9", "#3e3e3e"],
+                       border_width=2,
+                       fg_color="transparent"
+                       )
+theme_label = CTkLabel(theme_frame,
+                       text="Тема застосунку: ",
+                       font=("Segoe UI", 25)
+                       )
 theme_selected = StringVar()
 theme_selected.set(settings_json["theme"])
 
@@ -168,10 +246,26 @@ def theme_update():
     with open(pref_path, "w") as file:
         json.dump(settings_json, file)
 
-theme_radio1 = CTkRadioButton(theme_frame, text="Світла", font=("Segoe UI", 20), variable=theme_selected, value="light", command=theme_update)
-theme_radio2 = CTkRadioButton(theme_frame, text="Темна", font=("Segoe UI", 20), variable=theme_selected, value="dark", command=theme_update)
+theme_radio1 = CTkRadioButton(theme_frame,
+                              text="Світла",
+                              font=("Segoe UI", 20),
+                              variable=theme_selected,
+                              value="light",
+                              command=theme_update
+                              )
+theme_radio2 = CTkRadioButton(theme_frame,
+                              text="Темна",
+                              font=("Segoe UI", 20),
+                              variable=theme_selected,
+                              value="dark",
+                              command=theme_update
+                              )
 
-scaling_frame = CTkFrame(main_area, border_color=["#b9c4c9", "#3e3e3e"], border_width=2, fg_color="transparent")
+scaling_frame = CTkFrame(main_area,
+                         border_color=["#b9c4c9", "#3e3e3e"],
+                         border_width=2,
+                         fg_color="transparent"
+                         )
 
 # Функція оновлення налаштування масштабування
 def scaling_menu_callback(choice):
@@ -186,47 +280,111 @@ scaling_menu = CTkOptionMenu(scaling_frame,
                              font=("Segoe UI", 20),
                              dropdown_font=("Segoe UI", 20),
                              values=["50%", "75%", "100%", "125%", "150%", "200%"],
-                             command=scaling_menu_callback)
+                             command=scaling_menu_callback
+                             )
 scaling_menu.set(f"{int(settings_json["scale"] * 100)}%")
-scaling_label = CTkLabel(scaling_frame, text=f"Масштабування інтерфейсу:", font=("Segoe UI", 25))
+scaling_label = CTkLabel(scaling_frame,
+                         text=f"Масштабування інтерфейсу:",
+                         font=("Segoe UI", 25)
+                         )
 
 # Виклик інтерфейсу транскрибування тексту
 def text_ui():
     clear()
 
-    input_frame.grid(row=0, column=0, sticky="nswe")
-    input_label.grid(row=0, column=0, padx=25, pady=5, sticky="w")
-    input_field.grid(row=1, column=0, padx=25, pady=5, sticky="ew")
-    load_button.grid(row=2, column=0, padx=25, pady=5, sticky="w")
-    type_frame.grid(row=3, column=0, padx=25, sticky="nswe")
-    radio_label.grid(row=0, column=0, padx=25, pady=5, sticky = "w")
-    radio_1.grid(row=1, column=0, padx=25, sticky = "nswe")
-    radio_2.grid(row=2, column=0, padx=25, sticky = "nswe")
+    input_frame.grid(row=0, column=0,
+                     sticky="nswe"
+                     )
+    input_label.grid(row=0, column=0,
+                     padx=25, pady=5,
+                     sticky="w"
+                     )
+    input_field.grid(row=1, column=0,
+                     padx=25, pady=5,
+                     sticky="ew"
+                     )
+    load_button.grid(row=2, column=0,
+                     padx=25, pady=5,
+                     sticky="w"
+                     )
+    type_frame.grid(row=3, column=0,
+                    padx=25,
+                    sticky="nswe"
+                    )
+    radio_label.grid(row=0, column=0,
+                     padx=25, pady=5,
+                     sticky = "w"
+                     )
+    radio_1.grid(row=1, column=0,
+                 padx=25,
+                 sticky = "nswe"
+                 )
+    radio_2.grid(row=2, column=0,
+                 padx=25,
+                 sticky = "nswe"
+                 )
 
-    output_frame.grid(row=0, column=1, sticky="nswe")
-    output_label.grid(row=0, column=0, padx=25, pady=5, sticky="w")
-    output_field.grid(row=1, column=0, padx=25, pady=5, sticky="ew")
-    transcribe_button.grid(row=2, column=0, padx=25, pady=5, sticky="ew")
-    copy_button.grid(row=3, column=0, padx=25, pady=5, sticky="ew")
-    save_button.grid(row=4, column=0, padx=25, pady=5, sticky="ew")
+    output_frame.grid(row=0, column=1,
+                      sticky="nswe"
+                      )
+    output_label.grid(row=0, column=0,
+                      padx=25, pady=5,
+                      sticky="w"
+                      )
+    output_field.grid(row=1, column=0,
+                      padx=25, pady=5,
+                      sticky="ew"
+                      )
+    transcribe_button.grid(row=2, column=0,
+                           padx=25, pady=5,
+                           sticky="ew"
+                           )
+    copy_button.grid(row=3, column=0,
+                     padx=25, pady=5,
+                     sticky="ew"
+                     )
+    save_button.grid(row=4, column=0,
+                     padx=25, pady=5,
+                     sticky="ew"
+                     )
 
 # Виклик інтерфейсу налаштувань
 def settings_ui():
     clear()
     theme_frame.grid_propagate(False)
     theme_frame.configure(width = 1050, height=120)
-    theme_frame.grid(row=0, column=0, padx=25, pady=25)
-    theme_label.grid(row=0, column=0, padx=10, pady=5)
-    theme_radio1.grid(row=1, column=0, padx=50, sticky="w")
-    theme_radio2.grid(row=2, column=0, padx=50, sticky="w")
+    theme_frame.grid(row=0, column=0,
+                     padx=25,pady=25
+                     )
+    theme_label.grid(row=0, column=0,
+                     padx=10,pady=5
+                     )
+    theme_radio1.grid(row=1, column=0,
+                      padx=50,
+                      sticky="w"
+                      )
+    theme_radio2.grid(row=2, column=0,
+                      padx=50,
+                      sticky="w"
+                      )
 
     scaling_frame.grid_propagate(False)
     scaling_frame.configure(width = 1050, height=120)
-    scaling_frame.grid(row=1, column=0, padx=25, pady=25)
-    scaling_label.grid(row=0, column=0, padx=10, pady=5)
-    scaling_menu.grid(row=1, column=0, padx=50, sticky="w")
+    scaling_frame.grid(row=1, column=0,
+                       padx=25, pady=25
+                       )
+    scaling_label.grid(row=0, column=0,
+                       padx=10, pady=5
+                       )
+    scaling_menu.grid(row=1, column=0,
+                      padx=50, pady=10,
+                      sticky="w"
+                      )
 
-    links_frame.grid(row=2, column=0, pady=110, sticky="e")
+    links_frame.grid(row=2, column=0,
+                     pady=110,
+                     sticky="e"
+                     )
 
 def placeholder_ui():
     clear()
@@ -250,15 +408,14 @@ def menu_out():
         sidebar.place(x=sidebar_offset, y=0)
         app.after(3, menu_out)
 
-def on_click(event):
+def sidebar_hide_on_click(event):
     if app.winfo_pointerx() - app.winfo_rootx() > 200 * settings_json["scale"]:
         show_menu()
         app.unbind("<Button-1>")
 
 def show_menu():
     if sidebar.winfo_x() < 0:
-        app.bind("<Button-1>", on_click)
-        sidebar_button.pack_forget()
+        app.bind("<Button-1>", sidebar_hide_on_click)
         text_short.pack_forget()
         audio_short.pack_forget()
         analysis_short.pack_forget()
@@ -269,11 +426,11 @@ def show_menu():
         settings.pack(side="bottom")
         menu_in()
     else:
+        app.unbind("<Button-1>")
         text.pack_forget()
         audio.pack_forget()
         analysis.pack_forget()
         settings.pack_forget()
-        sidebar_button.pack(side="top", anchor="e")
         text_short.pack(side="top", anchor="e")
         audio_short.pack(side="top", anchor="e")
         analysis_short.pack(side="top", anchor="e")
@@ -281,27 +438,124 @@ def show_menu():
         menu_out()
         
 # Створення списку для вибору функції
-sidebar_button = CTkButton(sidebar, text="≡",  font=("Segoe UI", 40), width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=show_menu)
+sidebar_button = CTkButton(sidebar,
+                           text="≡",
+                           font=("Segoe UI", 30),
+                           width=45,
+                           corner_radius=0,
+                           hover_color=["#a3afb5", "#3e3e3e"],
+                           text_color=["#2A2C2F", "#F2F7FC"],
+                           fg_color="transparent",
+                           command=show_menu
+                           )
 
-text = CTkButton(sidebar, text="Тексти", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), text_ui()))
-text_short = CTkButton(sidebar, text="Aa", font=("Segoe UI", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=text_ui)
+text = CTkButton(sidebar,
+                 text="Тексти",
+                 font=("Segoe UI", 20),
+                 height=50,
+                 width=250,
+                 corner_radius=0,
+                 hover_color=["#a3afb5", "#3e3e3e"],
+                 text_color=["#2A2C2F", "#F2F7FC"],
+                 fg_color="transparent",
+                 command=lambda: (show_menu(), text_ui())
+                 )
+text_short = CTkButton(sidebar,
+                       text="Aa",
+                       font=("Segoe UI", 20),
+                       height=50,
+                       width=45,
+                       corner_radius=0,
+                       hover_color=["#a3afb5", "#3e3e3e"],
+                       text_color=["#2A2C2F", "#F2F7FC"],
+                       fg_color="transparent",
+                       command=text_ui
+                       )
 
-audio = CTkButton(sidebar, text="Аудіо", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), placeholder_ui()))
-audio_short = CTkButton(sidebar, text="🔊", font=("Segoe UI Emoji", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
+audio = CTkButton(sidebar,
+                  text="Аудіо",
+                  font=("Segoe UI", 20),
+                  height=50,
+                  width=250,
+                  corner_radius=0,
+                  hover_color=["#a3afb5", "#3e3e3e"],
+                  text_color=["#2A2C2F", "#F2F7FC"],
+                  fg_color="transparent",
+                  command=lambda: (show_menu(), placeholder_ui())
+                  )
+audio_short = CTkButton(sidebar,
+                        text="🔊",
+                        font=("Segoe UI Emoji", 20),
+                        height=50, 
+                        width=45,
+                        corner_radius=0,
+                        hover_color=["#a3afb5", "#3e3e3e"],
+                        text_color=["#2A2C2F", "#F2F7FC"],
+                        fg_color="transparent",
+                        command=placeholder_ui
+                        )
 
-analysis = CTkButton(sidebar, text="Аналіз", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), placeholder_ui()))
-analysis_short = CTkButton(sidebar, text="📋", font=("Segoe UI Emoji", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=placeholder_ui)
+analysis = CTkButton(sidebar,
+                     text="Аналіз",
+                     font=("Segoe UI", 20),
+                     height=50,
+                     width=250,
+                     corner_radius=0,
+                     hover_color=["#a3afb5", "#3e3e3e"],
+                     text_color=["#2A2C2F", "#F2F7FC"],
+                     fg_color="transparent",
+                     command=lambda: (show_menu(), placeholder_ui())
+                     )
+analysis_short = CTkButton(sidebar,
+                           text="📋",
+                           font=("Segoe UI Emoji", 20),
+                           height=50,
+                           width=45,
+                           corner_radius=0,
+                           hover_color=["#a3afb5", "#3e3e3e"],
+                           text_color=["#2A2C2F", "#F2F7FC"],
+                           fg_color="transparent",
+                           command=placeholder_ui
+                           )
 
-settings = CTkButton(sidebar, text="Налаштування", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), settings_ui()))
-settings_short = CTkButton(sidebar, text="⚙", font=("Segoe UI Emoji", 20), height=55, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=settings_ui)
+settings = CTkButton(sidebar,
+                     text="Налаштування",
+                     font=("Segoe UI", 20),
+                     height=50,
+                     width=250,
+                     corner_radius=0,
+                     hover_color=["#a3afb5", "#3e3e3e"],
+                     text_color=["#2A2C2F", "#F2F7FC"],
+                     fg_color="transparent",
+                     command=lambda: (show_menu(), settings_ui())
+                     )
+settings_short = CTkButton(sidebar,
+                           text="⚙",
+                           font=("Segoe UI Emoji", 20),
+                           height=55,
+                           width=45,
+                           corner_radius=0, 
+                           hover_color=["#a3afb5", "#3e3e3e"],
+                           text_color=["#2A2C2F", "#F2F7FC"],
+                           fg_color="transparent",
+                           command=settings_ui
+                           )
 
 # Виклик результату по натисканню клавіші Enter та зміна його поведінки у вікні для вводу
 input_field.bind('<Return>', enter_behaviour)
 
 # Домашня сторінка
 links_frame = CTkFrame(main_area, fg_color="transparent")
-git_link = CTkButton(links_frame, text="GitHub", font=("Segoe UI", 15), command=lambda: webbrowser.open("https://github.com/ArseniiBuhaiev/phonetics-lab-UA"))
-uni_link = CTkButton(links_frame, text="Катедра УМ та ПЛ", font=("Segoe UI", 15), command=lambda: webbrowser.open("https://philology.knu.ua/struktura-if/kafedry/kafedra-ukr-movy-pryklad-linhvist/"))
+git_link = CTkButton(links_frame,
+                     text="GitHub",
+                     font=("Segoe UI", 15),
+                     command=lambda: webbrowser.open("https://github.com/ArseniiBuhaiev/phonetics-lab-UA")
+                     )
+uni_link = CTkButton(links_frame,
+                     text="Катедра УМ та ПЛ",
+                     font=("Segoe UI", 15),
+                     command=lambda: webbrowser.open("https://philology.knu.ua/struktura-if/kafedry/kafedra-ukr-movy-pryklad-linhvist/")
+                     )
 home_img = CTkImage(light_image=Image.open("assets/light_home.png"),
                      dark_image=Image.open("assets/dark_home.png"),
                      size=(907, 360))
@@ -319,11 +573,22 @@ main_area.pack(side="right")
 main_area.lower(sidebar)
 
 def home_screen():
-    home_logo.grid(row=0, column=0, sticky = "e", padx=96, pady=30)
-    links_frame.grid(row=1, column=0, sticky="e", pady=30)
-    uni_link.grid(row=0, column=0, padx=10, pady=10)
-    git_link.grid(row=0, column=1, padx=10, pady=10)
+    home_logo.grid(row=0, column=0,
+                   sticky = "e",
+                   padx=96, pady=30
+                   )
+    links_frame.grid(row=1, column=0,
+                     sticky="e",
+                     pady=30
+                     )
+    uni_link.grid(row=0, column=0,
+                  padx=10, pady=10
+                  )
+    git_link.grid(row=0, column=1,
+                  padx=10, pady=10
+                  )
 
 if __name__ == "__main__":
     home_screen()
+    app.after(700, show_menu)
     app.mainloop()

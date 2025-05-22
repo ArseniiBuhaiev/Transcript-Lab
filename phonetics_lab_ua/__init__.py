@@ -1,3 +1,3 @@
 from .config import *
-from .transcript import *
+from .transcribe import *
 from .tokenize import *
