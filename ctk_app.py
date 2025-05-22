@@ -250,15 +250,14 @@ def menu_out():
         sidebar.place(x=sidebar_offset, y=0)
         app.after(3, menu_out)
 
-def on_click(event):
+def sidebar_hide_on_click(event):
     if app.winfo_pointerx() - app.winfo_rootx() > 200 * settings_json["scale"]:
         show_menu()
         app.unbind("<Button-1>")
 
 def show_menu():
     if sidebar.winfo_x() < 0:
-        app.bind("<Button-1>", on_click)
-        sidebar_button.pack_forget()
+        app.bind("<Button-1>", sidebar_hide_on_click)
         text_short.pack_forget()
         audio_short.pack_forget()
         analysis_short.pack_forget()
@@ -269,11 +268,11 @@ def show_menu():
         settings.pack(side="bottom")
         menu_in()
     else:
+        app.unbind("<Button-1>")
         text.pack_forget()
         audio.pack_forget()
         analysis.pack_forget()
         settings.pack_forget()
-        sidebar_button.pack(side="top", anchor="e")
         text_short.pack(side="top", anchor="e")
         audio_short.pack(side="top", anchor="e")
         analysis_short.pack(side="top", anchor="e")
@@ -281,7 +280,7 @@ def show_menu():
         menu_out()
         
 # Створення списку для вибору функції
-sidebar_button = CTkButton(sidebar, text="≡",  font=("Segoe UI", 40), width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=show_menu)
+sidebar_button = CTkButton(sidebar, text="≡",  font=("Segoe UI", 30), width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=show_menu)
 
 text = CTkButton(sidebar, text="Тексти", font=("Segoe UI", 20), height=50, width=250, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=lambda: (show_menu(), text_ui()))
 text_short = CTkButton(sidebar, text="Aa", font=("Segoe UI", 20), height=50, width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=text_ui)
