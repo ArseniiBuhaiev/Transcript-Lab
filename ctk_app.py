@@ -438,7 +438,6 @@ def show_menu():
         menu_out()
         
 # Створення списку для вибору функції
-<<<<<<< HEAD
 sidebar_button = CTkButton(sidebar,
                            text="≡",
                            font=("Segoe UI", 30),
@@ -449,9 +448,6 @@ sidebar_button = CTkButton(sidebar,
                            fg_color="transparent",
                            command=show_menu
                            )
-=======
-sidebar_button = CTkButton(sidebar, text="≡",  font=("Segoe UI", 30), width=45, corner_radius=0, hover_color=["#a3afb5", "#3e3e3e"], text_color=["#2A2C2F", "#F2F7FC"], fg_color="transparent", command=show_menu)
->>>>>>> 2a40cb84e67fbc94ceb026231f352ae200a61a93
 
 text = CTkButton(sidebar,
                  text="Тексти",
